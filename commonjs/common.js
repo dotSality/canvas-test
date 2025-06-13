@@ -1,4 +1,18 @@
+class Dot {
+  x;
+  y;
+
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+}
+
 class GridCell {
+  x1;
+  x2;
+  y1;
+  y2;
   size;
 
   constructor(x1, y1, x2, y2, size) {
@@ -40,6 +54,7 @@ class Grid {
   }
 }
 
+const DEFAULT_GRID_SIZE = 15;
 const generateGrid = (width, height, CellInstance = GridCell, size = DEFAULT_GRID_SIZE) => {
   const columns = width / size;
   const rows = height / size;

@@ -1,4 +1,4 @@
-1. Create game grid for food/ghosts/player positioning with customizing grid size
+1. ✅ Create game grid for food/ghosts/player positioning with customizing grid size
 2. Implement ability to pause the game through opening some kind of menu instance with some key controls like "R - restart", "Esc - continue" and etc.
 3. Implement food object
 4. Implement ghost object, make it simply move over food objects with customizing velocity at first iteration

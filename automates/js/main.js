@@ -1,8 +1,3 @@
-function Dot(x, y) {
-  this.x = x;
-  this.y = y;
-}
-
 const paintCell = (cell) => {
   ctx.fillStyle = cell.color;
   ctx.fillRect(cell.x1, cell.y1, cell.size, cell.size);
