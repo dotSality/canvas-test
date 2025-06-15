@@ -15,6 +15,7 @@ body {
   align-items: center;
 }
 
-.game {
-  /*background: blue;*/
+canvas {
+  position: absolute;
+  background: transparent;
 }

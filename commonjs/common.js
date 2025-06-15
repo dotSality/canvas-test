@@ -1,3 +1,41 @@
+const random = (min, max) =>
+    Math.trunc((Math.random() * (max - min))) + min;
+
+/**
+ *
+ * @typedef {{UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3}} Directions
+ */
+const DIRECTION = {
+  Right: 0,
+  Down: 1,
+  Left: 2,
+  Up: 3,
+}
+
+class Hitbox {
+  x1;
+  y1;
+  x2;
+  y2;
+
+  constructor(x1, y1, x2, y2) {
+    this.x1 = x1;
+    this.y1 = y1;
+    this.x2 = x2;
+    this.y2 = y2;
+  }
+}
+
+const getHitBox = (x, y, size) => {
+  const middle = size / 2;
+  const x1 = x - middle;
+  const y1 = y - middle;
+  const x2 = x + middle;
+  const y2 = y + middle;
+
+  return { x1, y1, x2, y2 };
+}
+
 class Dot {
   x;
   y;

@@ -19,48 +19,67 @@ class GameGridCell extends GridCell {
   }
 }
 
-const generateGridMap = (grid) => {
-  const map = new Map();
-  grid.instance.flat().forEach((cell) => {
-    map.set(cell.pivot, cell);
-  })
-  return map;
-}
+const field = document.getElementById("field");
+const fieldContext = field.getContext("2d");
 
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+fieldContext.fillStyle = "blue";
+fieldContext.fillRect(0, 0, field.width, field.height);
+fieldContext.fillStyle = null;
 
-ctx.fillStyle = "blue";
-ctx.fillRect(0, 0, canvas.width, canvas.height);
-ctx.fillStyle = null;
-
-const { width, height } = ctx.canvas;
+const { width, height } = fieldContext.canvas;
 
 const grid = generateGrid(width, height, GameGridCell, 20);
 
-const freeCellsMap = generateGridMap(grid);
-
 const paintCell = (cell) => {
   const {x, y} = cell.pivot;
-  cell.fill(new Food(x, y, 2, ctx));
-  // const { x, y } = cell.pivot;
-  // ctx.fillStyle = "yellow";
-  // ctx.strokeStyle = "yellow";
-  // ctx.beginPath();
-  // ctx.arc(x, y, 1, 0, Math.PI * 2);
-  // ctx.stroke();
-  // ctx.fill();
+  cell.fill(new Food(x, y, 2, fieldContext));
 };
 
-const destroyCell = (cell) => {
-  cell.destroy();
-}
-grid.traverse(paintCell);
+// grid.traverse(paintCell);
 
-const row = grid.instance.at(0);
-let idx = 0;
+// let col = 0;
+// let r = 0;
 // setInterval(() => {
-//   const cell = row[idx];
+//   if (r >= grid.size.y)  {
+//     col += 1;
+//     r = 0;
+//   }
+//   const row = grid.instance.at(col);
+//   const cell = row[r];
 //   cell.empty();
-//   idx += 1;
-// }, 200)
+//   r += 1;
+// }, 50)
+
+const models = document.getElementById("models");
+const modelsContext = models.getContext("2d");
+
+const playerColumnIndex = random(0, grid.size.x);
+const playerRowIndex = random(0, grid.size.y);
+
+const cell = grid.instance.at(playerColumnIndex).at(playerRowIndex);
+
+const { x, y } =  cell.pivot;
+
+const player = new Player(x, y, 10, 30, modelsContext);
+cell.fill(player);
+
+
+
+const render = () => {
+  player.render();
+  requestAnimationFrame(render);
+}
+
+
+grid.traverse((cell) => {
+  if ([player.x].includes(cell.pivot.x) && [player.y].includes(cell.pivot.y)) return;
+  paintCell(cell);
+});
+render();
+// let percentage = 0;
+// let percentageDelta = 1;
+// setInterval(() => {
+//   if (percentage > 10 || percentage < 0) percentageDelta *= -1;
+//
+//   percentage += percentageDelta;
+// }, 100)

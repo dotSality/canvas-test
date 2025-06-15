@@ -3,6 +3,7 @@ class Food {
     y;
     size;
     disassembled;
+    hitBox;
 
     /**
      *
@@ -17,19 +18,11 @@ class Food {
         this.size = size;
         this.ctx = ctx;
         this.disassembled = false;
-    }
-
-    get hitbox() {
-        const middle = this.size / 2;
-        const x = this.x - middle;
-        const y = this.y - middle;
-
-        return new Dot(x,y);
+        this.hitBox = getHitBox(x, y, size);
     }
 
     paint(size = this.size, color) {
         this.ctx.fillStyle = color;
-        // this.ctx.strokeStyle = color;
         this.ctx.beginPath();
         this.ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
         this.ctx.fill();
