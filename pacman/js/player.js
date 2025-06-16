@@ -38,10 +38,10 @@ class Player {
     #openingDelta = 1;
     direction;
 
-    constructor(x, y, r, opening, ctx, direction = DIRECTION.Up) {
+    constructor(x, y, size, opening, ctx, direction = DIRECTION.Up) {
         this.x = x;
         this.y = y;
-        this.r = r;
+        this.r = size / 2;
         this.ctx = ctx;
         this.opening = opening;
         this.alive = true;
@@ -49,7 +49,7 @@ class Player {
     }
 
     get hitBox() {
-        return getHitBox(this.x, this.y, this.r);
+        return getHitBox(this.x, this.y, this.r * 2);
     }
 
     paint(opening, erase = false) {

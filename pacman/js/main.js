@@ -60,7 +60,7 @@ const cell = grid.instance.at(playerColumnIndex).at(playerRowIndex);
 
 const { x, y } =  cell.pivot;
 
-const player = new Player(x, y, 10, 30, modelsContext);
+const player = new Player(x, y, 20, 30, modelsContext);
 cell.fill(player);
 
 
