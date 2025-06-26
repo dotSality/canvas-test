@@ -107,7 +107,7 @@ class Ant {
     const currentColumn = grid.at(this.column);
     const currentCell = currentColumn.at(this.row);
     this.visit(currentCell);
-    const {nextX, nextY} = calculateNextIndexes(this.column, this.row, size, ant.direction);
+    const {nextX, nextY} = calculateNextIndexes(this.column, this.row, size, this.direction);
     this.column = nextX;
     this.row = nextY;
   }
@@ -123,9 +123,11 @@ grid.traverse(paintCell);
 const currentColumnIndex = grid.instance.findIndex((col) => col === startingColumn);
 const currentRowIndex = startingColumn.findIndex((cell) => cell === startingCell);
 
-const ant = new Ant(startingCell.x, startingCell.y, currentColumnIndex, currentRowIndex);
-
-setInterval(() => ant.turn(grid.instance, grid.size.x), 1);
 
 
+const antRender = () => {
+  const ant = new Ant(startingCell.x, startingCell.y, currentColumnIndex, currentRowIndex);
+
+  setInterval(() => ant.turn(grid.instance, grid.size.x), 1);
+}
 

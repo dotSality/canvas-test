@@ -2,16 +2,6 @@ const checkCollision = (value, limit) => value >= limit || value <= 0;
 const getStartCoordinate = (size) => Math.trunc(Math.random() * size);
 const getDelta = () => Math.random() >= 0.5 ? 1 : -1
 
-const createCanvas = () => {
-  const canvas = document.createElement("canvas");
-  canvas.id = "canvas";
-  const ctx = canvas.getContext("2d");
-  ctx.canvas.width = 400;
-  ctx.canvas.height = 400;
-  canvas.style.background = "black";
-  document.body.append(canvas);
-};
-
 const draw = () => {
   let size = 20;
   let deltaX = getDelta();
@@ -31,9 +21,4 @@ const draw = () => {
   }, 10);
 };
 
-const init = () => {
-  createCanvas();
-  draw();
-};
-
-window.addEventListener("load", init);
+window.addEventListener("load", draw);
