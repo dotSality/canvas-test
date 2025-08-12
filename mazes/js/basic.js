@@ -1,4 +1,5 @@
 const CELL_SIZE = 20;
+const WALL_SIZE = 1;
 
 class MazeCell {
   visited;
@@ -14,6 +15,13 @@ class MazeCell {
     this.visited = false;
     this.color = "rgb(102, 179, 229)";
     this.neighbours = [];
+    this.walls = Array.from({ length: 4 }, () => true);
+  }
+
+  init() {
+    this.ctx.fillStyle = this.color;
+    this.ctx.fillRect(this.x * CELL_SIZE, this.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    this.paintWalls();
   }
 
   visit() {
@@ -21,12 +29,44 @@ class MazeCell {
     this.color = "orange";
     this.ctx.fillStyle = this.color;
     this.ctx.fillRect(this.x * CELL_SIZE, this.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    this.paintWalls();
   }
 
   show() {
     this.color = "red";
     this.ctx.fillStyle = this.color;
     this.ctx.fillRect(this.x * CELL_SIZE, this.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    this.paintWalls();
+  }
+
+  paintWalls() {
+    this.walls.forEach((hasWall, index) => {
+      this.ctx.fillStyle = hasWall ? "brown" : this.color
+      if (index === 0) {
+        this.ctx.fillRect(this.x * CELL_SIZE, this.y * CELL_SIZE, CELL_SIZE, WALL_SIZE);
+      } else if (index === 1) {
+        this.ctx.fillRect((this.x + 1) * CELL_SIZE - WALL_SIZE, this.y * CELL_SIZE, WALL_SIZE, CELL_SIZE);
+      } else if (index === 2) {
+        this.ctx.fillRect(this.x * CELL_SIZE, (this.y + 1) * CELL_SIZE - WALL_SIZE, CELL_SIZE, WALL_SIZE);
+      } else if (index === 3) {
+        this.ctx.fillRect(this.x * CELL_SIZE, this.y * CELL_SIZE, WALL_SIZE, CELL_SIZE);
+      }
+    });
+    this.ctx.fillStyle = this.color;
+  }
+
+  removeWall(dx, dy) {
+    if (dy === -1) {
+      this.walls[0] = false;
+    } else if (dy === 1) {
+      this.walls[2] = false;
+    }
+    if (dx === 1) {
+      this.walls[1] = false;
+    } else if (dx === -1) {
+      this.walls[3] = false;
+    }
+    this.paintWalls();
   }
 }
 
@@ -43,8 +83,7 @@ const stack = [];
 for (let row = 0 ; row < width ; row++) {
   for (let col = 0 ; col < height ; col++) {
     const cell = new MazeCell(col, row, ctx);
-    ctx.fillStyle = cell.color;
-    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    cell.init();
     grid.push(cell);
   }
 }
@@ -69,27 +108,25 @@ for (let row = 0 ; row < height ; row++) {
 }
 
 let current = grid.at(0);
-console.log(grid);
+let prev = null;
 
 const render = () => {
+  prev = current;
   current.visit();
   const unvisited = current.neighbours.filter((cell) => !cell.visited);
   if (unvisited.length > 0) {
     stack.push(current);
-    console.log('1');
     current = unvisited.at(Math.floor(Math.random() * unvisited.length));
-    current.show();
   } else if (stack.length > 0) {
-    console.log('2');
     current = stack.pop();
-    current.show();
   } else {
-    console.log('3');
-    return
+    return;
   }
+  current.show();
+  current.removeWall(prev.x - current.x , prev.y - current.y);
   requestAnimationFrame(() => {
     render();
-  })
-}
+  });
+};
 
 render();
