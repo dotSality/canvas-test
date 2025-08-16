@@ -4,9 +4,10 @@ const WALL_SIZE = 1;
 class MazeCell {
   visited;
   color;
-  neighbours;
+  #rawNeighbours = [];
   x;
   y;
+  #nearNeighboursMap={ 0: 2, 1: 3, 2:0 ,3 :1 };
 
   constructor(x, y, ctx) {
     this.ctx = ctx;
@@ -14,34 +15,50 @@ class MazeCell {
     this.y = y;
     this.visited = false;
     this.color = "rgb(102, 179, 229)";
-    this.neighbours = [];
     this.walls = Array.from({ length: 4 }, () => true);
   }
 
-  init() {
+  get neighbours() {
+    return this.#rawNeighbours.filter(Boolean);
+  }
+
+  fillNeighbours(neighbours) {
+    this.#rawNeighbours = neighbours;
+  }
+
+  fillBackground() {
     this.ctx.fillStyle = this.color;
     this.ctx.fillRect(this.x * CELL_SIZE, this.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+  }
+
+  init() {
+    this.fillBackground();
     this.paintWalls();
   }
 
   visit() {
     this.visited = true;
     this.color = "orange";
-    this.ctx.fillStyle = this.color;
-    this.ctx.fillRect(this.x * CELL_SIZE, this.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    this.fillBackground();
     this.paintWalls();
   }
 
   show() {
     this.color = "red";
-    this.ctx.fillStyle = this.color;
-    this.ctx.fillRect(this.x * CELL_SIZE, this.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    this.fillBackground();
     this.paintWalls();
   }
 
+  removeWall(direction) {
+    this.walls[direction] = false;
+  }
+
   paintWalls() {
-    this.walls.forEach((hasWall, index) => {
-      this.ctx.fillStyle = hasWall ? "brown" : this.color
+    this.walls.forEach((wall, index) => {
+      const neighbour = this.#rawNeighbours[index];
+      const hasWall = !neighbour || neighbour.walls[this.#nearNeighboursMap[index]];
+      if (!hasWall) return;
+      this.ctx.fillStyle = "brown";
       if (index === 0) {
         this.ctx.fillRect(this.x * CELL_SIZE, this.y * CELL_SIZE, CELL_SIZE, WALL_SIZE);
       } else if (index === 1) {
@@ -54,20 +71,28 @@ class MazeCell {
     });
     this.ctx.fillStyle = this.color;
   }
+}
 
-  removeWall(dx, dy) {
-    if (dy === -1) {
-      this.walls[0] = false;
-    } else if (dy === 1) {
-      this.walls[2] = false;
-    }
-    if (dx === 1) {
-      this.walls[1] = false;
-    } else if (dx === -1) {
-      this.walls[3] = false;
-    }
-    this.paintWalls();
+
+const removeWalls = (a, b) => {
+  const dx = b.x - a.x, dy = b.y - a.y;
+  if (dy === -1) {
+    b.removeWall(2);
+    a.removeWall(0);
+  } else if (dx === 1) {
+    b.removeWall(3);
+    a.removeWall(1);
+  } else if (dy === 1) {
+    b.removeWall(0);
+    a.removeWall(2);
+  } else if (dx === -1) {
+    b.removeWall(1);
+    a.removeWall(3);
   }
+  a.fillBackground();
+  b.fillBackground();
+  a.paintWalls();
+  b.paintWalls();
 }
 
 const canvas = document.getElementById("maze");
@@ -92,18 +117,12 @@ for (let row = 0 ; row < height ; row++) {
   for (let col = 0 ; col < width ; col++) {
     const idx = row * height + col;
     const cell = grid[idx];
-    if (col > 0) {
-      cell.neighbours.push(grid[idx - 1]);
-    }
-    if (col < height - 1) {
-      cell.neighbours.push(grid[idx + 1]);
-    }
-    if (row > 0) {
-      cell.neighbours.push(grid[idx - height]);
-    }
-    if (row < width - 1) {
-      cell.neighbours.push(grid[idx + height]);
-    }
+    cell.fillNeighbours([
+        row > 0 ? grid[idx - height] : undefined,
+        col < height - 1 ? grid[idx + 1] : undefined,
+        row < width - 1 ? grid[idx + height] : undefined,
+        col > 0 ? grid[idx - 1] : undefined,
+    ]);
   }
 }
 
@@ -123,7 +142,7 @@ const render = () => {
     return;
   }
   current.show();
-  current.removeWall(prev.x - current.x , prev.y - current.y);
+  removeWalls(prev, current);
   requestAnimationFrame(() => {
     render();
   });
