@@ -50,6 +50,14 @@ const { x, y } = cell.pivot;
 const player = new Player(x, y, PACMAN_GRID_SIZE, 30, modelsContext, random(0, 3));
 cell.fill(player);
 
+const gui = document.getElementById("gui");
+const guiContext = gui.getContext("2d");
+
+const menu = new Gui(guiContext);
+
+menu.draw();
+menu.drawDefault();
+
 const render = () => {
   const { x, y, direction, hitBox } = player;
   let point;
@@ -63,7 +71,7 @@ const render = () => {
   }
   const { pointX, pointY } = point;
 
-  const column = grid.instance.at(Math.floor(pointX / PACMAN_GRID_SIZE));
+  const column = grid.instance.at(Math.floor(pointX / PACMAN_GRID_SIZE)) ?? grid.instance.at(-1);
   const cell = column.at(Math.floor(pointY / PACMAN_GRID_SIZE));
 
   if (cell?.child instanceof Food && !cell.child.disassembled) {

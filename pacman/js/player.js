@@ -1,6 +1,3 @@
-const degToRad = (deg) => (deg * Math.PI) / 180;
-const radToDeg = (rad) => (rad * 180) / Math.PI;
-
 const VELOCITY = 0.5;
 
 const isCollided = (hitBox, boundary, direction) => {
