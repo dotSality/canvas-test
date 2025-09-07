@@ -55,8 +55,9 @@ const guiContext = gui.getContext("2d");
 
 const menu = new Gui(guiContext);
 
-menu.draw();
+menu.drawBackdrop();
 menu.drawDefault();
+menu.registerEvents();
 
 const render = () => {
   const { x, y, direction, hitBox } = player;
