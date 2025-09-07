@@ -1,4 +1,4 @@
-const VELOCITY = 1;
+const VELOCITY = 0.5;
 
 const isCollided = (hitBox, boundary, direction) => {
   const collidedBottom = hitBox.y2 >= boundary.y && direction === DIRECTION.Down;
