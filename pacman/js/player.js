@@ -51,7 +51,7 @@ class Player {
     return getHitBox(this.x, this.y, this.r * 2);
   }
 
-  paint(opening, erase = false) {
+  paint(opening) {
     const angle = Math.PI * (opening / 100);
 
     const rotationAngle = (this.direction * Math.PI * 2) / 4;
@@ -65,7 +65,6 @@ class Player {
       this.r,
       angle + rotationAngle,
       2 * Math.PI - angle + rotationAngle,
-      erase
     );
     this.ctx.closePath();
     this.ctx.fill();
@@ -89,12 +88,7 @@ class Player {
 
     this.ctx.clearRect(this.x - this.r, this.y - this.r, this.r * 2, this.r * 2);
 
-    this.paint(0);
-    this.ctx.globalCompositeOperation = "destination-out";
-
-    this.paint(this.opening, true);
-
-    this.ctx.globalCompositeOperation = "source-out";
+    this.paint(this.opening);
   }
 
   disassemble() {
@@ -113,11 +107,11 @@ class Player {
   }
 
   keyHandler = (event) => {
-    const key = event.key
+    const key = event.key;
     if (Object.keys(ROTATIONS).includes(key)) {
       this.rotate(ROTATIONS[key]);
     }
-  }
+  };
 
   initControls() {
     window.addEventListener("keydown", this.keyHandler);
