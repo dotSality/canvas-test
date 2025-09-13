@@ -68,6 +68,22 @@ class Player {
     );
     this.ctx.closePath();
     this.ctx.fill();
+
+
+    // this.ctx.beginPath();
+    // this.ctx.moveTo(83, 116);
+    // this.ctx.lineTo(83, 102);
+    // this.ctx.bezierCurveTo(83, 94, 89, 88, 97, 88);
+    // this.ctx.bezierCurveTo(105, 88, 111, 94, 111, 102);
+    // this.ctx.lineTo(111, 116);
+    // this.ctx.lineTo(106.333, 111.333);
+    // this.ctx.lineTo(101.666, 116);
+    // this.ctx.lineTo(97, 111.333);
+    // this.ctx.lineTo(92.333, 116);
+    // this.ctx.lineTo(87.666, 111.333);
+    // this.ctx.lineTo(83, 116);
+    // this.ctx.closePath();
+    // this.ctx.fill();
   }
 
   create() {
@@ -75,7 +91,7 @@ class Player {
 
     this.ctx.globalCompositeOperation = "destination-out";
 
-    this.paint(this.opening, true);
+    this.paint(this.opening);
 
     this.ctx.globalCompositeOperation = "source-out";
 
@@ -118,7 +134,7 @@ class Player {
   }
 
   render() {
-    this.move();
-    this.animate();
+    // this.move();
+    // this.animate();
   }
 }
