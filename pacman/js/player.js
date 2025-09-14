@@ -51,10 +51,12 @@ class Player {
     return getHitBox(this.x, this.y, this.r * 2);
   }
 
-  paint(opening) {
+  paint(opening, eraseMouth = false) {
     const angle = Math.PI * (opening / 100);
 
     const rotationAngle = (this.direction * Math.PI * 2) / 4;
+
+    this.ctx.save();
 
     this.ctx.fillStyle = "yellow";
     this.ctx.beginPath();
@@ -65,35 +67,19 @@ class Player {
       this.r,
       angle + rotationAngle,
       2 * Math.PI - angle + rotationAngle,
+      eraseMouth,
     );
     this.ctx.closePath();
     this.ctx.fill();
+    this.ctx.globalCompositeOperation = "source-out";
 
-
-    // this.ctx.beginPath();
-    // this.ctx.moveTo(83, 116);
-    // this.ctx.lineTo(83, 102);
-    // this.ctx.bezierCurveTo(83, 94, 89, 88, 97, 88);
-    // this.ctx.bezierCurveTo(105, 88, 111, 94, 111, 102);
-    // this.ctx.lineTo(111, 116);
-    // this.ctx.lineTo(106.333, 111.333);
-    // this.ctx.lineTo(101.666, 116);
-    // this.ctx.lineTo(97, 111.333);
-    // this.ctx.lineTo(92.333, 116);
-    // this.ctx.lineTo(87.666, 111.333);
-    // this.ctx.lineTo(83, 116);
-    // this.ctx.closePath();
-    // this.ctx.fill();
+    this.ctx.restore();
   }
 
   create() {
     this.paint(0);
 
-    this.ctx.globalCompositeOperation = "destination-out";
-
-    this.paint(this.opening);
-
-    this.ctx.globalCompositeOperation = "source-out";
+    this.paint(this.opening, true);
 
     this.initControls();
   }
@@ -102,9 +88,32 @@ class Player {
     if (this.opening <= 0 || this.opening >= 30) this.#openingDelta *= -1;
     this.opening += this.#openingDelta;
 
-    this.ctx.clearRect(this.x - this.r, this.y - this.r, this.r * 2, this.r * 2);
+    // this.ctx.clearRect(this.x - this.r, this.y - this.r, this.r * 2, this.r * 2);
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
-    this.paint(this.opening);
+    this.paint(0);
+    this.ctx.save();
+    this.ctx.globalCompositeOperation = "destination-out";
+
+    this.paint(this.opening, true);
+
+    this.ctx.restore();
+
+    this.ctx.beginPath();
+    this.ctx.fillStyle = "yellow";
+    this.ctx.moveTo(83, 116);
+    this.ctx.lineTo(83, 102);
+    this.ctx.bezierCurveTo(83, 94, 89, 88, 97, 88);
+    this.ctx.bezierCurveTo(105, 88, 111, 94, 111, 102);
+    this.ctx.lineTo(111, 116);
+    this.ctx.lineTo(106.333, 111.333);
+    this.ctx.lineTo(101.666, 116);
+    this.ctx.lineTo(97, 111.333);
+    this.ctx.lineTo(92.333, 116);
+    this.ctx.lineTo(87.666, 111.333);
+    this.ctx.lineTo(83, 116);
+    this.ctx.closePath();
+    this.ctx.fill();
   }
 
   disassemble() {
@@ -134,7 +143,7 @@ class Player {
   }
 
   render() {
-    // this.move();
-    // this.animate();
+    this.move();
+    this.animate();
   }
 }
