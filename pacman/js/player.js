@@ -1,25 +1,3 @@
-const VELOCITY = 0.5;
-
-const isCollided = (hitBox, boundary, direction) => {
-  const collidedBottom = hitBox.y2 >= boundary.y && direction === DIRECTION.Down;
-  const collidedTop = hitBox.y1 <= 0 && direction === DIRECTION.Up;
-  const collidedLeft = hitBox.x1 <= 0 && direction === DIRECTION.Left;
-  const collidedRight = hitBox.x2 >= boundary.x && direction === DIRECTION.Right;
-
-  const deltaUp = collidedTop ? 0 : -VELOCITY;
-  const deltaDown = collidedBottom ? 0 : VELOCITY;
-  const deltaRight = collidedRight ? 0 : VELOCITY;
-  const deltaLeft = collidedLeft ? 0 : -VELOCITY;
-
-  const isHorizontal = direction === DIRECTION.Left || direction === DIRECTION.Right;
-  const isVertical = direction === DIRECTION.Up || direction === DIRECTION.Down;
-
-  const deltaX = isHorizontal ? (direction === DIRECTION.Left ? deltaLeft : deltaRight) : 0;
-  const deltaY = isVertical ? (direction === DIRECTION.Up ? deltaUp : deltaDown) : 0;
-
-  return { deltaX, deltaY };
-};
-
 const ROTATIONS = {
   ArrowRight: DIRECTION.Right,
   ArrowDown: DIRECTION.Down,
@@ -36,8 +14,9 @@ class Player {
   ctx;
   #openingDelta = 1;
   direction;
+  velocity;
 
-  constructor(x, y, size, opening, ctx, direction = DIRECTION.Up) {
+  constructor(x, y, size, opening, ctx, direction = DIRECTION.Up, velocity = 1) {
     this.x = x;
     this.y = y;
     this.r = size / 2;
@@ -45,6 +24,7 @@ class Player {
     this.opening = opening;
     this.alive = true;
     this.direction = direction;
+    this.velocity = velocity;
   }
 
   get hitBox() {
@@ -98,22 +78,10 @@ class Player {
     this.paint(this.opening, true);
 
     this.ctx.restore();
+  }
 
-    this.ctx.beginPath();
-    this.ctx.fillStyle = "yellow";
-    this.ctx.moveTo(83, 116);
-    this.ctx.lineTo(83, 102);
-    this.ctx.bezierCurveTo(83, 94, 89, 88, 97, 88);
-    this.ctx.bezierCurveTo(105, 88, 111, 94, 111, 102);
-    this.ctx.lineTo(111, 116);
-    this.ctx.lineTo(106.333, 111.333);
-    this.ctx.lineTo(101.666, 116);
-    this.ctx.lineTo(97, 111.333);
-    this.ctx.lineTo(92.333, 116);
-    this.ctx.lineTo(87.666, 111.333);
-    this.ctx.lineTo(83, 116);
-    this.ctx.closePath();
-    this.ctx.fill();
+  clear() {
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
   }
 
   disassemble() {
@@ -122,7 +90,7 @@ class Player {
 
   move() {
     const boundary = { x: this.ctx.canvas.width, y: this.ctx.canvas.height };
-    const { deltaX, deltaY } = isCollided(this.hitBox, boundary, this.direction);
+    const { deltaX, deltaY } = isCollided(this.hitBox, boundary, this.direction, this.velocity);
     this.x += deltaX;
     this.y += deltaY;
   }
@@ -143,6 +111,7 @@ class Player {
   }
 
   render() {
+    this.clear();
     this.move();
     this.animate();
   }

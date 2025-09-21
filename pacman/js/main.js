@@ -20,6 +20,7 @@ class GameGridCell extends GridCell {
 }
 
 const PACMAN_GRID_SIZE = 20;
+const VELOCITY = 0.5;
 
 const field = document.getElementById("field");
 const fieldContext = field.getContext("2d");
@@ -47,8 +48,11 @@ const cell = grid.instance.at(playerColumnIndex).at(playerRowIndex);
 
 const { x, y } = cell.pivot;
 
-const player = new Player(x, y, PACMAN_GRID_SIZE, 30, modelsContext, random(0, 3));
-cell.fill(player);
+const player = new Player(x, y, PACMAN_GRID_SIZE, 30, modelsContext, random(0, 3), VELOCITY);
+player.create();
+
+const enemy = new Enemy(50, 100, PACMAN_GRID_SIZE, modelsContext, random(0, 3), VELOCITY);
+enemy.create();
 
 const gui = document.getElementById("gui");
 const guiContext = gui.getContext("2d");
@@ -58,6 +62,8 @@ const menu = new Gui(guiContext);
 menu.drawBackdrop();
 menu.drawDefault();
 menu.registerEvents();
+
+let ts = Date.now();
 
 const render = () => {
   const { x, y, direction, hitBox } = player;
@@ -81,7 +87,11 @@ const render = () => {
       cell.empty();
     }
   }
+  const newTs = Date.now();
+  const delta = newTs - ts;
+  ts = newTs;
   player.render();
+  enemy.render(delta);
   requestAnimationFrame(render);
 };
 
