@@ -63,9 +63,11 @@ menu.drawBackdrop();
 menu.drawDefault();
 menu.registerEvents();
 
-let ts = Date.now();
+let prevTimestamp = 0;
 
-const render = () => {
+const render = (timestamp) => {
+  player.clear();
+  enemy.clear();
   const { x, y, direction, hitBox } = player;
   let point;
 
@@ -87,11 +89,10 @@ const render = () => {
       cell.empty();
     }
   }
-  const newTs = Date.now();
-  const delta = newTs - ts;
-  ts = newTs;
+  const delta = (timestamp ?? 0) - prevTimestamp;
+  prevTimestamp = timestamp ?? 0;
   player.render();
-  enemy.render(delta);
+  enemy.render(delta / 1000);
   requestAnimationFrame(render);
 };
 

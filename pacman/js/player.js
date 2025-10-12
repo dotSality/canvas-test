@@ -31,7 +31,7 @@ class Player {
     return getHitBox(this.x, this.y, this.r * 2);
   }
 
-  paint(opening, eraseMouth = false) {
+  paint(opening) {
     const angle = Math.PI * (opening / 100);
 
     const rotationAngle = (this.direction * Math.PI * 2) / 4;
@@ -47,19 +47,15 @@ class Player {
       this.r,
       angle + rotationAngle,
       2 * Math.PI - angle + rotationAngle,
-      eraseMouth,
     );
     this.ctx.closePath();
     this.ctx.fill();
-    this.ctx.globalCompositeOperation = "source-out";
 
     this.ctx.restore();
   }
 
   create() {
-    this.paint(0);
-
-    this.paint(this.opening, true);
+    this.paint(this.opening);
 
     this.initControls();
   }
@@ -68,16 +64,7 @@ class Player {
     if (this.opening <= 0 || this.opening >= 30) this.#openingDelta *= -1;
     this.opening += this.#openingDelta;
 
-    // this.ctx.clearRect(this.x - this.r, this.y - this.r, this.r * 2, this.r * 2);
-    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-
-    this.paint(0);
-    this.ctx.save();
-    this.ctx.globalCompositeOperation = "destination-out";
-
-    this.paint(this.opening, true);
-
-    this.ctx.restore();
+    this.paint(this.opening);
   }
 
   clear() {
@@ -111,7 +98,6 @@ class Player {
   }
 
   render() {
-    this.clear();
     this.move();
     this.animate();
   }
