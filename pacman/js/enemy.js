@@ -36,29 +36,29 @@ class Enemy {
     this.ctx.fillStyle = "red";
 
     const r = this.size / 2;
-    const deltaYForLeg = r / 2;
-    const deltaXForLeg = r / 3;
+    const deltaLegX = r / 3;
+    const deltaLegY = r / 2;
 
     this.ctx.moveTo(this.x, this.y);
     this.ctx.arc(this.x, this.y, r, Math.PI, 0);
     this.ctx.moveTo(this.x + r, this.y);
-    this.ctx.lineTo(this.x + r, this.y + r - deltaYForLeg);
+    this.ctx.lineTo(this.x + r, this.y + r - deltaLegY);
 
     if (this.#step > 0) {
-      this.ctx.lineTo(this.x + 2 * deltaXForLeg, this.y + r);
-      this.ctx.lineTo(this.x + deltaXForLeg, this.y + r - deltaYForLeg);
+      this.ctx.lineTo(this.x + 2 * deltaLegX, this.y + r);
+      this.ctx.lineTo(this.x + deltaLegX, this.y + r - deltaLegY);
       this.ctx.lineTo(this.x, this.y + r);
-      this.ctx.lineTo(this.x - deltaXForLeg, this.y + r - deltaYForLeg);
-      this.ctx.lineTo(this.x - 2 * deltaXForLeg, this.y + r);
-      this.ctx.lineTo(this.x - r, this.y + r - deltaYForLeg);
+      this.ctx.lineTo(this.x - deltaLegX, this.y + r - deltaLegY);
+      this.ctx.lineTo(this.x - 2 * deltaLegX, this.y + r);
+      this.ctx.lineTo(this.x - r, this.y + r - deltaLegY);
       this.ctx.lineTo(this.x - r, this.y);
     } else {
       this.ctx.lineTo(this.x + r, this.y + r);
-      this.ctx.lineTo(this.x + 2 * deltaXForLeg, this.y + r - deltaYForLeg);
-      this.ctx.lineTo(this.x + deltaXForLeg, this.y + r);
-      this.ctx.lineTo(this.x, this.y + r - deltaYForLeg);
-      this.ctx.lineTo(this.x - deltaXForLeg, this.y + r);
-      this.ctx.lineTo(this.x - 2 * deltaXForLeg, this.y + r - deltaYForLeg);
+      this.ctx.lineTo(this.x + 2 * deltaLegX, this.y + r - deltaLegY);
+      this.ctx.lineTo(this.x + deltaLegX, this.y + r);
+      this.ctx.lineTo(this.x, this.y + r - deltaLegY);
+      this.ctx.lineTo(this.x - deltaLegX, this.y + r);
+      this.ctx.lineTo(this.x - 2 * deltaLegX, this.y + r - deltaLegY);
       this.ctx.lineTo(this.x - r, this.y + r);
       this.ctx.lineTo(this.x - r, this.y);
     }

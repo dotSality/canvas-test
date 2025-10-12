@@ -59,6 +59,8 @@ const guiContext = gui.getContext("2d");
 
 const menu = new Gui(guiContext);
 
+const game = new Game();
+
 menu.drawBackdrop();
 menu.drawDefault();
 menu.registerEvents();
@@ -89,10 +91,9 @@ const render = (timestamp) => {
       cell.empty();
     }
   }
-  const delta = (timestamp ?? 0) - prevTimestamp;
+  const delta = ((timestamp ?? 0) - prevTimestamp) / 1000;
   prevTimestamp = timestamp ?? 0;
-  player.render();
-  enemy.render(delta / 1000);
+  game.render(delta, player, enemy);
   requestAnimationFrame(render);
 };
 
