@@ -4,8 +4,15 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <style>
-      body {
+      * {
+        padding: 0;
         margin: 0;
+        border: none;
+        color: black;
+        background: none;
+      }
+
+      body {
         background: antiquewhite;
         width: 100vw;
         height: 100vh;
@@ -17,16 +24,42 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        position: relative;
+      }
+
+      .controls {
+        display: flex;
+        gap: 5px;
+        position: absolute;
+        top: 50px;
+      }
+
+      .controls__button {
+        background: rgb(233, 150, 122);
+        font-weight: 500;
+        font-size: 16px;
+        border-radius: 8px;
+        border: 1px solid black;
+        padding: 8px 15px;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+
+        &:hover {
+          background-color: rgba(233, 150, 122, 0.4);
+        }
       }
     </style>
   </head>
   <body>
     <div class="app">
       <canvas class="canvas" id="automate" width="600" height="600"></canvas>
-      <script src="../commonjs/common.js"></script>
-<!--      <script src="js/ant.js"></script>-->
-<!--      <script src="js/life.js"></script>-->
-      <script src="js/wireworld.js"></script>
+      <div class="controls">
+      </div>
+      <script src="js/common.js" type="module"></script>
+      <script src="js/ant.js" type="module"></script>
+      <script src="js/life.js" type="module"></script>
+      <script src="js/wireworld.js" type="module"></script>
+      <script src="js/main.js" type="module"></script>
     </div>
   </body>
 </html>
