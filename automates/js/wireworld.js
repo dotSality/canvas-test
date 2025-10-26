@@ -54,7 +54,7 @@
   //   }
   // });
 
-  const usableCells = new Map();
+  let usableCells = new Map();
   ["0,3", "1,3", "2,3", "3,3", "4,3", "5,3", "6,3", "8,3", "9,3", "10,3", "11,3", "12,3", "13,3", "0,9", "1,9", "2,9",
     "3,9", "4,9", "5,9", "7,9", "8,9", "9,9", "10,9", "11,9", "12,9", "13,9", "6,2", "7,2", "6,4", "7,4", "6,8", "7,8", "6,10", "7,10"]
     .forEach((coords) => {
@@ -82,9 +82,9 @@
     ]
       .reduce((acc, coords) => {
         const [x, y] = coords;
-        const cell = usableCells.get(`${x},${y}`);
-        if (cell) {
-          acc.push(cell);
+        const type = usableCells.get(`${x},${y}`);
+        if (type !== undefined) {
+          acc.push(coords.join(","));
         }
         return acc;
       }, []);
@@ -105,9 +105,16 @@
     }
   };
 
-  ["0,3", "0,9"].forEach((coords) => {
-    usableCells.set(coords, CellType.ELECTRON_HEAD);
-  });
+  const init = () => {
+    ["0,3", "0,9"].forEach((coords) => {
+      usableCells.set(coords, CellType.ELECTRON_HEAD);
+    });
+  };
+
+  const isFinished = (cells) => {
+    const nonConductors = [...cells.values()].filter((type) => type !== CellType.CONDUCTOR);
+    return nonConductors.length === 0;
+  };
 
   /**
    * @param {Map<String, Number>} cells
@@ -127,19 +134,23 @@
    * @returns {Map<String, Number>}
    */
   const simulateNextGeneration = (activeCells) => {
-    const newCells = new Map();
-    activeCells.entries().forEach(([coords, oldType]) => {
-      const newType = cellNextGeneration(coords, oldType);
-      newCells.set(coords, newType);
-    });
-    console.log(newCells);
-    return newCells;
+    if (isFinished(activeCells)) {
+      init();
+    } else {
+      const newCells = new Map();
+      activeCells.entries().forEach(([coords, oldType]) => {
+        const newType = cellNextGeneration(coords, oldType);
+        newCells.set(coords, newType);
+      });
+      return newCells;
+    }
   };
 
   const render = () => {
-    const newCells = simulateNextGeneration(usableCells);
-    renderCells(newCells);
-    // requestAnimationFrame(render);
+    usableCells = simulateNextGeneration(usableCells) ?? usableCells;
+    renderCells(usableCells);
   };
-  render();
+  setInterval(() => {
+    render();
+  }, 500);
 })();
