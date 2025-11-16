@@ -61,13 +61,16 @@ const menu = new Gui(guiContext);
 
 const game = new Game();
 
-menu.drawBackdrop();
-menu.drawDefault();
-menu.registerEvents();
+game.init();
+menu.init();
 
 let prevTimestamp = 0;
 
 const render = (timestamp) => {
+  const delta = ((timestamp ?? 0) - prevTimestamp) / 1000;
+  prevTimestamp = timestamp ?? 0;
+  // TODO: fix pause behavior
+  if (game.paused) return;
   player.clear();
   enemy.clear();
   const { x, y, direction, hitBox } = player;
@@ -91,8 +94,6 @@ const render = (timestamp) => {
       cell.empty();
     }
   }
-  const delta = ((timestamp ?? 0) - prevTimestamp) / 1000;
-  prevTimestamp = timestamp ?? 0;
   game.render(delta, player, enemy);
   requestAnimationFrame(render);
 };

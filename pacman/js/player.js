@@ -15,7 +15,6 @@ class Player {
   #openingDelta = 1;
   direction;
   velocity;
-  #paused;
 
   constructor(x, y, size, opening, ctx, direction = DIRECTION.Up, velocity = 1) {
     this.x = x;
@@ -73,7 +72,6 @@ class Player {
   }
 
   disassemble() {
-    if (this.#paused) return;
     window.removeEventListener("keydown", this.keyHandler);
   }
 
@@ -89,7 +87,6 @@ class Player {
   }
 
   keyHandler = (event) => {
-    if (this.#paused) return;
     const key = event.key;
     if (Object.keys(ROTATIONS).includes(key)) {
       this.rotate(ROTATIONS[key]);
@@ -101,7 +98,6 @@ class Player {
   }
 
   render() {
-    if (this.#paused) return;
     this.move();
     this.animate();
   }

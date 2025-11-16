@@ -8,6 +8,19 @@ class Game extends EventEmitter {
     });
   }
 
+  initListeners() {
+    window.addEventListener('keydown', (event) => {
+      if (['Escape', 'p'].includes(event.key)) {
+        this.trigger('pause');
+        console.log(this.paused);
+      }
+    })
+  }
+
+  init() {
+    this.initListeners();
+  }
+
   render(delta, ...stack) {
     if (this.paused) return;
 
