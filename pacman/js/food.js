@@ -1,4 +1,4 @@
-class Food {
+class Food extends EventEmitter {
   x;
   y;
   size;
@@ -13,6 +13,8 @@ class Food {
    * @param {CanvasRenderingContext2D} ctx - canvas's context
    */
   constructor(x, y, size, ctx) {
+    super();
+
     this.x = x;
     this.y = y;
     this.size = size;
@@ -42,6 +44,7 @@ class Food {
   disassemble() {
     if (this.disassembled) return;
 
+    this.disassembled = true;
     const step = this.size / 8;
     let currentSize = this.size;
     const id = setInterval(() => {
@@ -51,7 +54,7 @@ class Food {
       this.paint(currentSize, "yellow");
       if (currentSize <= 0) {
         clearInterval(id);
-        this.disassembled = true;
+        this.trigger('disassembled');
       }
     }, 20);
   }

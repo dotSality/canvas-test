@@ -28,7 +28,7 @@ class EventEmitter {
     this.#events.set(eventName, events);
   }
 
-  trigger(name, args) {
+  trigger(name, ...args) {
     if (!name) {
       logMethod(this.trigger, "invalid event name", "error");
     }

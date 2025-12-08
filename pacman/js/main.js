@@ -12,9 +12,12 @@ class GameGridCell extends GridCell {
     this.child.create();
   }
 
-  empty() {
+  empty(onDispose) {
     if (!this.child) console.error("No child fo filling has been provided");
 
+    this.child?.on('disassembled', () => {
+      onDispose?.();
+    })
     this.child.disassemble();
   }
 }
@@ -91,7 +94,10 @@ const render = (timestamp) => {
   if (cell?.child instanceof Food && !cell.child.disassembled) {
     const { hitBox: foodHitBox } = cell.child;
     if ((foodHitBox.x2 >= pointX || foodHitBox.x1 <= pointX) || (foodHitBox.y1 <= pointY || foodHitBox.y2 >= pointY)) {
-      cell.empty();
+      cell.empty(() => {
+        game.score += 1;
+        menu.trigger('printScore', game.score);
+      });
     }
   }
   game.render(delta, player, enemy);

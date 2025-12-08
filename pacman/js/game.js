@@ -1,5 +1,6 @@
 class Game extends EventEmitter {
   paused = false;
+  score = 0;
 
   constructor() {
     super();
