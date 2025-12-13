@@ -3,14 +3,14 @@ const Pages = {
   SETTINGS: "SETTINGS",
   GAME: "GAME",
 };
-const PADDING = 20;
+const PADDING = 5;
 const HEART_PATH = "M 65,29 C 59,19 49,12 37,12 20,12 7,25 7,42 7,75 25,80 65,118 105,80 123,75 123,42 123,25 110,12 93,12 81,12 71,19 65,29 z";
 
 const getPathBoundaryBox = (d) => {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
 
-  path.setAttribute('d', d);
+  path.setAttribute("d", d);
   svg.appendChild(path);
   svg.setAttribute("style", "position:absolute; left:-9999px; top:-9999px; visibility:hidden;");
   document.body.appendChild(svg);
@@ -20,7 +20,7 @@ const getPathBoundaryBox = (d) => {
   svg.remove();
 
   return bbox;
-}
+};
 
 const getHeartPathMeta = () => ({
   count: 3,
@@ -67,23 +67,9 @@ class Gui extends EventEmitter {
       { name: "Settings", x1: middleX - 100, y1: 400, width: 200, height: 40, interactive: true },
     ];
     this.#items[Pages.GAME] = [
-      { name: "Score", x1: 20, width: 70, y1: 20, height: 60, interactive: false },
-      { name: "Lives", x1: this.width - 100, width: 80, y1: 20, height: 60, interactive: false },
+      { name: "Score", x1: 20, width: 70, y1: 10, height: 30, interactive: false },
+      { name: "Lives", x1: this.width - 100, width: 80, y1: 10, height: 30, interactive: false },
     ];
-  }
-
-  setContextForPage(page) {
-    switch (page) {
-      case Pages.DEFAULT:
-      case Pages.GAME:
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeStyle = "#ffffff";
-        this.ctx.textBaseline = "middle";
-        this.ctx.font = "20px serif";
-        break;
-      default:
-        break;
-    }
   }
 
   drawInteractiveItem(element, oldPath = null) {
@@ -110,27 +96,41 @@ class Gui extends EventEmitter {
     return path;
   }
 
-  get currentDrawItemMethod() {
-    return {
-      [Pages.DEFAULT]: (...args) => this.drawInteractiveItem(...args),
-      [Pages.SETTINGS]: () => {
-      },
-      [Pages.GAME]: (...args) => this.drawGameItem(...args),
-    }[this.currentPage];
+  drawDefaultPage() {
+    const page = Pages.DEFAULT
+
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeStyle = "#ffffff";
+    this.ctx.textBaseline = "middle";
+    this.ctx.font = "20px serif";
+    this.ctx.canvas.classList.add("backdrop");
+
+    this.currentPage = page;
+    this.#items[page].forEach((element) => {
+      const path = this.drawInteractiveItem(element);
+      if (!this.#paths[page]) {
+        this.#paths[page] = [];
+      }
+      this.#paths[page].push(path);
+    });
   }
 
-  drawPage(page) {
-    this.#paths[page] = [];
+  drawGamePage() {
+    const page = Pages.GAME;
+
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeStyle = "#ffffff";
+    this.ctx.textBaseline = "middle";
+    this.ctx.font = "20px serif";
+    this.ctx.canvas.classList.remove("backdrop");
+
     this.currentPage = page;
-    this.setContextForPage(page);
+
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect(0, 0, this.ctx.canvas.width, 50);
+
     this.#items[page].forEach((element) => {
-      const path = this.currentDrawItemMethod(element);
-      if (element.interactive) {
-        if (!this.#paths[page]) {
-          this.#paths[page] = [];
-        }
-        this.#paths[page].push(path);
-      }
+      this.drawGameItem(element);
     });
   }
 
@@ -142,17 +142,20 @@ class Gui extends EventEmitter {
     this.ctx.save();
     let scoreString = count.toString();
     while (scoreString.length < 5) {
-      scoreString = '0' + scoreString;
+      scoreString = "0" + scoreString;
     }
 
     const valueMeta = this.ctx.measureText(scoreString);
     const x1 = element.x1 + element.width / 2 - valueMeta.width / 2;
-    const y1 = element.y1 + element.height / 2 + PADDING / 2;
-    this.ctx.clearRect(x1, y1 - PADDING / 2, valueMeta.width, 20);
+    const y1 = element.y1 + element.height / 2 + PADDING * 2;
+    this.ctx.fillStyle = 'black';
+    this.ctx.fillRect(x1, y1 - PADDING * 2, valueMeta.width, 20);
     this.ctx.beginPath();
     this.ctx.fillStyle = "white";
     this.ctx.fillText(scoreString, x1, y1);
     this.ctx.restore();
+
+    this.unregisterEvents();
   }
 
   drawLives(element, textMeta) {
@@ -160,10 +163,10 @@ class Gui extends EventEmitter {
     const { count, gap, path, pathBox, scale } = getHeartPathMeta();
 
     const resultPath = new Path2D();
-    const x1 = element.x1 + element.width / 2 - textMeta.width / 2
-    const y1 = element.y1 + PADDING;
+    const x1 = element.x1 + element.width / 2 - textMeta.width / 2;
+    const y1 = element.y1 + PADDING * 2;
 
-    for (let i = 0; i < count; i += 1) {
+    for (let i = 0 ; i < count ; i += 1) {
       resultPath.addPath(
         new Path2D(path),
         new DOMMatrix()
@@ -189,23 +192,13 @@ class Gui extends EventEmitter {
     this.ctx.fillText(element.name, labelX1, labelY1);
     this.ctx.restore();
 
-    if (element.name === 'Score') {
+    if (element.name === "Score") {
       this.drawGameScore(element);
-      this.on('printScore', (value) => {
+      this.on("printScore", (value) => {
         this.drawGameScore(element, value);
-      })
+      });
     } else {
       this.drawLives(element, labelMeta);
-    }
-  }
-
-  // TODO: change for css background for gui canvas
-  drawBackdrop(params) {
-    this.ctx.fillStyle = "#00000040";
-    if (params) {
-      this.ctx.fillRect(params.x1, params.y1, params.width, params.height);
-    } else {
-      this.ctx.fillRect(0, 0, this.width, this.height);
     }
   }
 
@@ -215,8 +208,13 @@ class Gui extends EventEmitter {
         console.log("clicked: ", item.name);
       });
     });
-    this.ctx.canvas.addEventListener("mousemove", (event) => this.handleHover(event));
-    this.ctx.canvas.addEventListener("click", () => this.handleClick());
+    this.ctx.canvas.addEventListener("mousemove", this.handleHover);
+    this.ctx.canvas.addEventListener("click", this.handleClick);
+  }
+
+  unregisterEvents() {
+    this.ctx.canvas.removeEventListener("mousemove", this.handleHover);
+    this.ctx.canvas.removeEventListener("click", this.handleClick);
   }
 
   /**
@@ -239,8 +237,6 @@ class Gui extends EventEmitter {
       const itemIndex = this.#paths[this.currentPage].findIndex((path) => path === this.hoveringPath);
       const item = this.#items[this.currentPage][itemIndex];
       this.ctx.clearRect(item.x1, item.y1, item.width, item.height);
-      this.drawBackdrop({ x1: item.x1, y1: item.y1, width: item.width, height: item.height });
-      this.setContextForPage(this.currentPage);
       this.drawInteractiveItem(this.#items[this.currentPage][itemIndex], this.hoveringPath);
       this.hoveringPath = null;
       return;
@@ -263,9 +259,8 @@ class Gui extends EventEmitter {
   }
 
   init() {
-    this.drawBackdrop();
-    // this.drawPage(Pages.DEFAULT);
-    this.drawPage(Pages.GAME);
+    // this.drawDefaultPage();
+    this.drawGamePage();
     this.registerEvents();
   }
 }
