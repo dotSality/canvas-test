@@ -15,9 +15,9 @@ class GameGridCell extends GridCell {
   empty(onDispose) {
     if (!this.child) console.error("No child fo filling has been provided");
 
-    this.child?.on('disassembled', () => {
+    this.child?.on("disassembled", () => {
       onDispose?.();
-    })
+    });
     this.child.disassemble();
   }
 }
@@ -67,39 +67,45 @@ const game = new Game();
 game.init();
 menu.init();
 
+menu.on("start", () => {
+  game.paused = false;
+});
+
 let prevTimestamp = 0;
 
 const render = (timestamp) => {
   const delta = ((timestamp ?? 0) - prevTimestamp) / 1000;
   prevTimestamp = timestamp ?? 0;
-  // TODO: fix pause behavior
-  if (game.paused) return;
-  player.clear();
-  enemy.clear();
-  const { x, y, direction, hitBox } = player;
-  let point;
 
-  if (direction === DIRECTION.Right || direction === DIRECTION.Left) {
-    const pointX = direction === DIRECTION.Left ? hitBox.x1 : hitBox.x2;
-    point = { pointX, pointY: y };
-  } else if (direction === DIRECTION.Up || direction === DIRECTION.Down) {
-    const pointY = direction === DIRECTION.Up ? hitBox.y1 : hitBox.y2;
-    point = { pointY, pointX: x };
-  }
-  const { pointX, pointY } = point;
+  if (!game.paused) {
+    player.clear();
+    enemy.clear();
+    const { x, y, direction, hitBox } = player;
+    let point;
 
-  const column = grid.instance.at(Math.floor(pointX / PACMAN_GRID_SIZE)) ?? grid.instance.at(-1);
-  const cell = column.at(Math.floor(pointY / PACMAN_GRID_SIZE));
+    if (direction === DIRECTION.Right || direction === DIRECTION.Left) {
+      const pointX = direction === DIRECTION.Left ? hitBox.x1 : hitBox.x2;
+      point = { pointX, pointY: y };
+    } else if (direction === DIRECTION.Up || direction === DIRECTION.Down) {
+      const pointY = direction === DIRECTION.Up ? hitBox.y1 : hitBox.y2;
+      point = { pointY, pointX: x };
+    }
+    const { pointX, pointY } = point;
 
-  if (cell?.child instanceof Food && !cell.child.disassembled) {
-    const { hitBox: foodHitBox } = cell.child;
-    if ((foodHitBox.x2 >= pointX || foodHitBox.x1 <= pointX) || (foodHitBox.y1 <= pointY || foodHitBox.y2 >= pointY)) {
-      cell.empty(() => {
-        game.score += 1;
-        menu.trigger('printScore', game.score);
-      });
+    const column = grid.instance.at(Math.floor(pointX / PACMAN_GRID_SIZE)) ?? grid.instance.at(-1);
+    const cell = column.at(Math.floor(pointY / PACMAN_GRID_SIZE));
+
+    if (cell?.child instanceof Food && !cell.child.disassembled) {
+      const { hitBox: foodHitBox } = cell.child;
+      if ((foodHitBox.x2 >= pointX || foodHitBox.x1 <= pointX) || (foodHitBox.y1 <= pointY || foodHitBox.y2 >= pointY)) {
+        cell.empty(() => {
+          game.score += 1;
+          menu.trigger("printScore", game.score);
+        });
+      }
     }
   }
+
   game.render(delta, player, enemy);
   requestAnimationFrame(render);
 };

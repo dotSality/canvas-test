@@ -9,7 +9,7 @@ body {
 
 .page {
   width: 600px;
-  height: 650px;
+  height: 630px;
   display: flex;
   justify-content: center;
   align-items: flex-end;

@@ -35,6 +35,8 @@ class EventEmitter {
     const callbacks = this.#events.get(name);
     if (!callbacks) {
       logMethod(this.trigger, `no callbacks for event: ${name}`, "error");
+
+      return;
     }
 
     return callbacks.forEach((callback) => callback.apply(null, args));

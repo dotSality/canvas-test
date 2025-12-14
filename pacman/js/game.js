@@ -1,5 +1,5 @@
 class Game extends EventEmitter {
-  paused = false;
+  paused = true;
   score = 0;
 
   constructor() {

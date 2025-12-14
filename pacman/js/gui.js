@@ -57,6 +57,9 @@ class Gui extends EventEmitter {
     this.width = width;
     this.height = height;
     this.createItems();
+
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect(0, 0, this.ctx.canvas.width, 30);
   }
 
   createItems() {
@@ -65,10 +68,6 @@ class Gui extends EventEmitter {
       { name: "Start", x1: middleX - 100, y1: 300, width: 200, height: 40, interactive: true },
       { name: "Restart", x1: middleX - 100, y1: 350, width: 200, height: 40, interactive: true },
       { name: "Settings", x1: middleX - 100, y1: 400, width: 200, height: 40, interactive: true },
-    ];
-    this.#items[Pages.GAME] = [
-      { name: "Score", x1: 20, width: 70, y1: 10, height: 30, interactive: false },
-      { name: "Lives", x1: this.width - 100, width: 80, y1: 10, height: 30, interactive: false },
     ];
   }
 
@@ -97,7 +96,7 @@ class Gui extends EventEmitter {
   }
 
   drawDefaultPage() {
-    const page = Pages.DEFAULT
+    const page = Pages.DEFAULT;
 
     this.ctx.lineWidth = 2;
     this.ctx.strokeStyle = "#ffffff";
@@ -115,22 +114,29 @@ class Gui extends EventEmitter {
     });
   }
 
+  clearDefaultPage() {
+    this.ctx.clearRect(0, 30, this.ctx.canvas.width, this.ctx.canvas.height - 30);
+    this.ctx.canvas.classList.remove("hovering");
+    this.#items[Pages.DEFAULT] = null;
+  }
+
   drawGamePage() {
     const page = Pages.GAME;
-
     this.ctx.lineWidth = 2;
     this.ctx.strokeStyle = "#ffffff";
     this.ctx.textBaseline = "middle";
     this.ctx.font = "20px serif";
     this.ctx.canvas.classList.remove("backdrop");
-
     this.currentPage = page;
 
-    this.ctx.fillStyle = "black";
-    this.ctx.fillRect(0, 0, this.ctx.canvas.width, 50);
+    this.drawGameScoreLabel();
+    this.drawGameScoreValue();
 
-    this.#items[page].forEach((element) => {
-      this.drawGameItem(element);
+    this.drawLivesLabel();
+    this.drawLivesValue();
+
+    this.on("printScore", (value) => {
+      this.drawGameScoreValue(value);
     });
   }
 
@@ -138,18 +144,31 @@ class Gui extends EventEmitter {
 
   }
 
-  drawGameScore(element, count = 0) {
+  drawGameScoreLabel() {
+    this.ctx.save();
+    const labelX1 = 20;
+    const labelY1 = PADDING;
+    this.ctx.beginPath();
+    this.ctx.fillStyle = "white";
+    this.ctx.textBaseline = "top";
+    this.ctx.fillText("Score:", labelX1, labelY1);
+    this.ctx.restore();
+  }
+
+  drawGameScoreValue(count = 0) {
     this.ctx.save();
     let scoreString = count.toString();
     while (scoreString.length < 5) {
       scoreString = "0" + scoreString;
     }
 
+    const labelMeta = this.ctx.measureText("Score:");
     const valueMeta = this.ctx.measureText(scoreString);
-    const x1 = element.x1 + element.width / 2 - valueMeta.width / 2;
-    const y1 = element.y1 + element.height / 2 + PADDING * 2;
-    this.ctx.fillStyle = 'black';
-    this.ctx.fillRect(x1, y1 - PADDING * 2, valueMeta.width, 20);
+    const x1 = 20 + labelMeta.width + 5;
+    const y1 = PADDING;
+    this.ctx.textBaseline = "top";
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect(x1 - 1, y1, valueMeta.width + 1, 20);
     this.ctx.beginPath();
     this.ctx.fillStyle = "white";
     this.ctx.fillText(scoreString, x1, y1);
@@ -158,21 +177,35 @@ class Gui extends EventEmitter {
     this.unregisterEvents();
   }
 
-  drawLives(element, textMeta) {
+  drawLivesLabel() {
+    this.ctx.save();
+    const { pathBox, scale, gap, count } = getHeartPathMeta();
+    const heartsWidth = (pathBox.width * count + gap * (count - 1)) * scale;
+    const labelMeta = this.ctx.measureText("Lives:");
+    const labelX1 = this.ctx.canvas.width - 20 - labelMeta.width - heartsWidth - 9;
+    const labelY1 = PADDING;
+    this.ctx.beginPath();
+    this.ctx.fillStyle = "white";
+    this.ctx.textBaseline = "top";
+    this.ctx.fillText("Lives:", labelX1, labelY1);
+    this.ctx.restore();
+  }
+
+  drawLivesValue() {
     this.ctx.save();
     const { count, gap, path, pathBox, scale } = getHeartPathMeta();
-
+    const heartOffsetX = 6;
+    this.ctx.textBaseline = "top";
     const resultPath = new Path2D();
-    const x1 = element.x1 + element.width / 2 - textMeta.width / 2;
-    const y1 = element.y1 + PADDING * 2;
+    const x1 = this.ctx.canvas.width - 20 - (pathBox.width * count + gap * (count - 1)) * scale;
 
     for (let i = 0 ; i < count ; i += 1) {
       resultPath.addPath(
         new Path2D(path),
         new DOMMatrix()
           .translate(
-            x1 - pathBox.x + (pathBox.width * scale + gap) * i,
-            y1 + PADDING / 2)
+            x1 - heartOffsetX + (pathBox.width * scale + gap) * i,
+            PADDING)
           .scale(scale, scale));
     }
 
@@ -181,35 +214,19 @@ class Gui extends EventEmitter {
     this.ctx.restore();
   }
 
-  drawGameItem(element) {
-    this.ctx.save();
-
-    const labelMeta = this.ctx.measureText(element.name);
-    const labelX1 = element.x1 + element.width / 2 - labelMeta.width / 2;
-    const labelY1 = element.y1 + PADDING;
-    this.ctx.beginPath();
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText(element.name, labelX1, labelY1);
-    this.ctx.restore();
-
-    if (element.name === "Score") {
-      this.drawGameScore(element);
-      this.on("printScore", (value) => {
-        this.drawGameScore(element, value);
-      });
-    } else {
-      this.drawLives(element, labelMeta);
-    }
-  }
-
   registerEvents() {
     Object.values(this.#items).flat().forEach((item) => {
       this.on(`click:${item.name}`, () => {
-        console.log("clicked: ", item.name);
+        this.trigger(item.name.toLowerCase());
       });
     });
     this.ctx.canvas.addEventListener("mousemove", this.handleHover);
     this.ctx.canvas.addEventListener("click", this.handleClick);
+
+    this.on('start', () => {
+      this.clearDefaultPage();
+      this.drawGamePage();
+    })
   }
 
   unregisterEvents() {
@@ -221,7 +238,7 @@ class Gui extends EventEmitter {
    *
    * @param event {MouseEvent}
    */
-  handleHover(event) {
+  handleHover = (event) => {
     const { offsetX, offsetY } = event;
 
     const paths = this.#paths[this.currentPage];
@@ -248,19 +265,19 @@ class Gui extends EventEmitter {
     this.ctx.fillStyle = "#ffffff30";
     this.ctx.fill(this.hoveringPath);
     this.ctx.stroke(this.hoveringPath);
-  }
+  };
 
-  handleClick() {
+  handleClick = () => {
     if (!this.hoveringPath) return;
 
     const pathIndex = this.#paths[this.currentPage].findIndex((path) => path === this.hoveringPath);
     const item = this.#items[this.currentPage][pathIndex];
     this.trigger(`click:${item.name}`);
-  }
+  };
 
   init() {
-    // this.drawDefaultPage();
-    this.drawGamePage();
+    this.drawDefaultPage();
+    // this.drawGamePage();
     this.registerEvents();
   }
 }
