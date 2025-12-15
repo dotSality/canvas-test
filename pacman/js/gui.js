@@ -3,8 +3,44 @@ const Pages = {
   SETTINGS: "SETTINGS",
   GAME: "GAME",
 };
+const SvgIcons = {
+  ARROWS: "arrows",
+};
+
 const PADDING = 5;
 const HEART_PATH = "M 65,29 C 59,19 49,12 37,12 20,12 7,25 7,42 7,75 25,80 65,118 105,80 123,75 123,42 123,25 110,12 93,12 81,12 71,19 65,29 z";
+
+const ARROW_KEYS_SVG = `<svg viewBox="0 0 324 212" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="115" y="3" width="94" height="94" rx="13" stroke="white" stroke-width="6"/>
+  <rect x="115" y="115" width="94" height="94" rx="13" stroke="white" stroke-width="6"/>
+  <rect x="227" y="115" width="94" height="94" rx="13" stroke="white" stroke-width="6"/>
+  <rect x="3" y="115" width="94" height="94" rx="13" stroke="white" stroke-width="6"/>
+  <path d="M159 68C159 69.6569 160.343 71 162 71C163.657 71 165 69.6569 165 68L162 68L159 68ZM164.121 29.8787C162.95 28.7071 161.05 28.7071 159.879 29.8787L140.787 48.9706C139.615 50.1421 139.615 52.0416 140.787 53.2132C141.958 54.3848 143.858 54.3848 145.029 53.2132L162 36.2426L178.971 53.2132C180.142 54.3848 182.042 54.3848 183.213 53.2132C184.385 52.0416 184.385 50.1421 183.213 48.9706L164.121 29.8787ZM162 68L165 68L165 32L162 32L159 32L159 68L162 68Z" fill="white"/>
+  <path d="M256 159C254.343 159 253 160.343 253 162C253 163.657 254.343 165 256 165V162V159ZM294.121 164.121C295.293 162.95 295.293 161.05 294.121 159.879L275.029 140.787C273.858 139.615 271.958 139.615 270.787 140.787C269.615 141.958 269.615 143.858 270.787 145.029L287.757 162L270.787 178.971C269.615 180.142 269.615 182.042 270.787 183.213C271.958 184.385 273.858 184.385 275.029 183.213L294.121 164.121ZM256 162V165H292V162V159H256V162Z" fill="white"/>
+  <path d="M68 165C69.6569 165 71 163.657 71 162C71 160.343 69.6569 159 68 159L68 162L68 165ZM29.8787 159.879C28.7071 161.05 28.7071 162.95 29.8787 164.121L48.9706 183.213C50.1421 184.385 52.0416 184.385 53.2132 183.213C54.3848 182.042 54.3848 180.142 53.2132 178.971L36.2426 162L53.2132 145.029C54.3848 143.858 54.3848 141.958 53.2132 140.787C52.0416 139.615 50.1421 139.615 48.9706 140.787L29.8787 159.879ZM68 162L68 159L32 159L32 162L32 165L68 165L68 162Z" fill="white"/>
+  <path d="M159 144C159 142.343 160.343 141 162 141C163.657 141 165 142.343 165 144L162 144L159 144ZM164.121 182.121C162.95 183.293 161.05 183.293 159.879 182.121L140.787 163.029C139.615 161.858 139.615 159.958 140.787 158.787C141.958 157.615 143.858 157.615 145.029 158.787L162 175.757L178.971 158.787C180.142 157.615 182.042 157.615 183.213 158.787C184.385 159.958 184.385 161.858 183.213 163.029L164.121 182.121ZM162 144L165 144L165 180L162 180L159 180L159 144L162 144Z" fill="white"/>
+</svg>`;
+
+class SvgCanvasImage {
+  #blob;
+  #defaultDimensions = { x: 0, y: 0 };
+
+  constructor(innerText) {
+    this.#blob = new Blob([innerText], { type: "image/svg+xml" });
+  }
+
+  draw(ctx, dimensions = this.#defaultDimensions) {
+    const url = URL.createObjectURL(this.#blob);
+    const args = Object.values(dimensions);
+    const image = new Image();
+    image.onload = () => {
+      console.log(url);
+      ctx.drawImage(image, ...args);
+      URL.revokeObjectURL(url);
+    };
+    image.src = url;
+  }
+}
 
 const getPathBoundaryBox = (d) => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -47,6 +83,8 @@ class Gui extends EventEmitter {
     [Pages.SETTINGS]: null,
     [Pages.GAME]: null,
   };
+
+  #icons = {};
 
   constructor(ctx) {
     super();
@@ -135,13 +173,29 @@ class Gui extends EventEmitter {
     this.drawLivesLabel();
     this.drawLivesValue();
 
+    this.drawSettings();
+
     this.on("printScore", (value) => {
       this.drawGameScoreValue(value);
     });
   }
 
   drawSettings() {
+    this.ctx.save();
+    const x1 = 140;
 
+    const icon = new SvgCanvasImage(ARROW_KEYS_SVG);
+    this.#icons[SvgIcons.ARROWS] = icon;
+    const aspect = 324 / 212;
+    const iconHeight = 20;
+    const iconWidth = iconHeight * aspect;
+    const dimensions = { x: 140, y: PADDING, width: iconWidth, height: iconHeight };
+    icon.draw(this.ctx, dimensions);
+    this.ctx.fillStyle = "white";
+    this.ctx.font = "14px serif";
+    this.ctx.textBaseline = "top";
+    this.ctx.fillText(" - moving, P - pause, Esc - menu", x1 + iconWidth, PADDING + 3);
+    this.ctx.restore();
   }
 
   drawGameScoreLabel() {
@@ -168,13 +222,17 @@ class Gui extends EventEmitter {
     const y1 = PADDING;
     this.ctx.textBaseline = "top";
     this.ctx.fillStyle = "black";
-    this.ctx.fillRect(x1 - 1, y1, valueMeta.width + 1, 20);
+    this.ctx.fillRect(x1 - 1, y1, valueMeta.width + 2, 20);
     this.ctx.beginPath();
     this.ctx.fillStyle = "white";
     this.ctx.fillText(scoreString, x1, y1);
     this.ctx.restore();
 
     this.unregisterEvents();
+  }
+
+  drawHotkeys() {
+
   }
 
   drawLivesLabel() {
@@ -223,10 +281,10 @@ class Gui extends EventEmitter {
     this.ctx.canvas.addEventListener("mousemove", this.handleHover);
     this.ctx.canvas.addEventListener("click", this.handleClick);
 
-    this.on('start', () => {
+    this.on("start", () => {
       this.clearDefaultPage();
       this.drawGamePage();
-    })
+    });
   }
 
   unregisterEvents() {

@@ -23,3 +23,7 @@ canvas {
 canvas.backdrop {
   background-color: #00000040;
 }
+
+.hovering {
+  cursor: pointer;
+}
