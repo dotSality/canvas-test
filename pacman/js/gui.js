@@ -34,7 +34,6 @@ class SvgCanvasImage {
     const args = Object.values(dimensions);
     const image = new Image();
     image.onload = () => {
-      console.log(url);
       ctx.drawImage(image, ...args);
       URL.revokeObjectURL(url);
     };

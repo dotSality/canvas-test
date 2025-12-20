@@ -72,7 +72,7 @@ menu.on("start", () => {
 });
 
 let prevTimestamp = 0;
-
+// TODO: consider using devicePixelRatio for canvas sizes | moving | etc.
 const render = (timestamp) => {
   const delta = ((timestamp ?? 0) - prevTimestamp) / 1000;
   prevTimestamp = timestamp ?? 0;
