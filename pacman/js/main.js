@@ -33,23 +33,36 @@ fieldContext.fillRect(0, 0, field.width, field.height);
 fieldContext.fillStyle = null;
 
 const { width, height } = fieldContext.canvas;
-
+const walls = new Walls(fieldContext, PACMAN_GRID_SIZE);
 const grid = generateGrid(width, height, GameGridCell, PACMAN_GRID_SIZE);
-
-const paintCell = (cell) => {
-  const { x, y } = cell.pivot;
-  cell.fill(new Food(x, y, 2, fieldContext));
-};
 
 const models = document.getElementById("models");
 const modelsContext = models.getContext("2d");
 
-const playerColumnIndex = random(0, grid.size.x);
-const playerRowIndex = random(0, grid.size.y);
+const freeCells = [];
 
-const cell = grid.instance.at(playerColumnIndex).at(playerRowIndex);
+grid.traverse((cell) => {
+  const { x, y } = cell.position;
+  if (!walls.isWalled(x, y)) {
+    freeCells.push(cell);
+  }
+});
 
-const { x, y } = cell.pivot;
+const playerStartCell = freeCells.at(random(0, freeCells.length));
+
+freeCells.forEach((cell) => {
+  if (cell === playerStartCell) {
+    return;
+  }
+
+  const { x, y } = cell.pivot;
+
+  cell.fill(new Food(x, y, 2, fieldContext));
+});
+
+walls.drawWalls();
+
+const { x, y } = playerStartCell.pivot;
 
 const player = new Player(x, y, PACMAN_GRID_SIZE, 30, modelsContext, random(0, 3), VELOCITY);
 player.create();
@@ -110,8 +123,4 @@ const render = (timestamp) => {
   requestAnimationFrame(render);
 };
 
-grid.traverse((cell) => {
-  if ([player.x].includes(cell.pivot.x) && [player.y].includes(cell.pivot.y)) return;
-  paintCell(cell);
-});
 render();

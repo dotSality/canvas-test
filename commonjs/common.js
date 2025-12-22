@@ -1,5 +1,5 @@
 const random = (min, max) =>
-    Math.trunc((Math.random() * (max - min))) + min;
+  Math.trunc((Math.random() * (max - min))) + min;
 
 const isCollided = (hitBox, boundary, direction, velocity) => {
   const collidedBottom = hitBox.y2 >= boundary.y && direction === DIRECTION.Down;
@@ -30,7 +30,7 @@ const DIRECTION = {
   Down: 1,
   Left: 2,
   Up: 3,
-}
+};
 
 const getHitBox = (x, y, size) => {
   const middle = size / 2;
@@ -40,7 +40,7 @@ const getHitBox = (x, y, size) => {
   const y2 = y + middle;
 
   return { x1, y1, x2, y2 };
-}
+};
 
 class Dot {
   x;
@@ -69,6 +69,11 @@ class GridCell {
 
   get pivot() {
     return { x: this.size / 2 + this.x1, y: this.size / 2 + this.y1 };
+  }
+
+  get position() {
+    const { x, y } = this.pivot;
+    return { x: Math.floor(x / this.size), y: Math.floor(y / this.size) };
   }
 }
 

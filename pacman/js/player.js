@@ -93,6 +93,7 @@ class Player {
     }
   };
 
+  // TODO: block listener initialization until paused/not started
   initControls() {
     window.addEventListener("keydown", this.keyHandler);
   }
