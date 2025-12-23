@@ -16,6 +16,8 @@ class Player {
   direction;
   velocity;
 
+  movingBlocked;
+
   constructor(x, y, size, opening, ctx, direction = DIRECTION.Up, velocity = 1) {
     this.x = x;
     this.y = y;
@@ -76,6 +78,9 @@ class Player {
   }
 
   move() {
+    if (this.movingBlocked) {
+      return;
+    }
     const boundary = { x: this.ctx.canvas.width, y: this.ctx.canvas.height };
     const { deltaX, deltaY } = isCollided(this.hitBox, boundary, this.direction, this.velocity);
     this.x += deltaX;
@@ -101,5 +106,6 @@ class Player {
   render() {
     this.move();
     this.animate();
+    this.movingBlocked = false;
   }
 }
