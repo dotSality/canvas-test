@@ -22,8 +22,55 @@ class GameGridCell extends GridCell {
   }
 }
 
+class Wall {
+  x;
+  y;
+  size;
+  ctx;
+
+  constructor(x,y, size, ctx) {
+    this.x = x;
+    this.y = y;
+    this.size = size;
+    this.ctx = ctx;
+  }
+
+  create() {
+    console.warn('Wall.create is not implemented');
+  }
+}
+
 const PACMAN_GRID_SIZE = 20;
-const VELOCITY = 0.5;
+const VELOCITY = 0.5 * window.devicePixelRatio;
+
+const WALLS_TEMPLATE = [
+  [[0, 0], [4, 8]],
+  [[6, 0], [11, 3]],
+  [[13, 0], [15, 8]],
+  [[17, 0], [23, 2]],
+  [[25, 0], [29, 13]],
+  [[6, 5], [11, 13]],
+  [[17, 4], [23, 13]],
+  [[0, 10], [4, 18]],
+  [[6, 15], [11, 25]],
+  [[13, 10], [15, 25]],
+  [[17, 15], [23, 25]],
+  [[25, 15], [29, 25]],
+  [[0, 20], [4, 29]],
+  [[6, 27], [15, 29]],
+  [[17, 27], [29, 29]],
+];
+
+const isWall = (x,y) => {
+  const block = WALLS_TEMPLATE.find(([p1, p2]) => {
+    const [x1, y1] = p1, [x2, y2] = p2;
+    const isWalledX = x >= x1 && x <= x2;
+    const isWalledY = y >= y1 && y <= y2;
+    return isWalledX && isWalledY;
+  });
+
+  return Boolean(block);
+}
 
 const field = document.getElementById("field");
 const fieldContext = field.getContext("2d");
@@ -38,28 +85,46 @@ const grid = generateGrid(width, height, GameGridCell, PACMAN_GRID_SIZE);
 const models = document.getElementById("models");
 const modelsContext = models.getContext("2d");
 
-const freeCells = [];
-
+let playerStartCell;
 grid.traverse((cell) => {
-  const { x, y } = cell.position;
-  if (!Walls.isWalled(x, y)) {
-    freeCells.push(cell);
-  }
-});
-
-const playerStartCell = freeCells.at(random(0, freeCells.length));
-
-freeCells.forEach((cell) => {
   if (cell === playerStartCell) {
     return;
   }
 
-  const { x, y } = cell.pivot;
+  const { x, y } = cell.position;
+  if (isWall(x, y)) {
 
-  cell.fill(new Food(x, y, 2, fieldContext));
+    cell.fill(new Wall(x,y));
+
+    return;
+  }
+
+  if (Math.random() > 0.95 && !playerStartCell) {
+    playerStartCell = cell;
+  } else {
+    const { x: pivotX, y: pivotY } = cell.pivot;
+
+    cell.fill(new Food(pivotX, pivotY, 2, fieldContext));
+  }
 });
 
-Walls.drawWalls(fieldContext, PACMAN_GRID_SIZE);
+const drawWalls = () => {
+  fieldContext.save();
+  fieldContext.strokeStyle = "white";
+  fieldContext.strokeWidth = 2;
+  WALLS_TEMPLATE.forEach(([p1, p2]) => {
+    const [x1, y1] = p1, [x2, y2] = p2;
+    const px1 = x1 * PACMAN_GRID_SIZE + 2;
+    const px2 = (x2 + 1) * PACMAN_GRID_SIZE - 2;
+    const py1 = y1 * PACMAN_GRID_SIZE + 2;
+    const py2 = (y2 + 1) * PACMAN_GRID_SIZE - 2;
+    fieldContext.beginPath();
+    fieldContext.roundRect(px1, py1, px2 - px1, py2 - py1, 5);
+    fieldContext.stroke();
+  });
+  fieldContext.restore();
+}
+drawWalls();
 
 const { x, y } = playerStartCell.pivot;
 
@@ -115,21 +180,20 @@ const render = (timestamp) => {
           menu.trigger("printScore", game.score);
         });
       }
-    }
-    const { x: posX, y: posY } = cell.position;
+    } else if (cell?.child instanceof Wall) {
 
-    if (Walls.isWalled(posX, posY)) {
-      const { x: pivotX, y: pivotY } = cell.pivot;
-      const delta = 2;
+      const delta = 3;
+
+      const {x1, x2, y1, y2} = cell
 
       if (direction === DIRECTION.Left) {
-        player.movingBlocked = hitBox.x1 <= pivotX + delta;
+        player.movingBlocked = hitBox.x1 <= x2 + delta;
       } else if (direction === DIRECTION.Right) {
-        player.movingBlocked = hitBox.x2 >= pivotX - delta;
+        player.movingBlocked = hitBox.x2 >= x1 - delta;
       } else if (direction === DIRECTION.Up) {
-        player.movingBlocked = hitBox.y1 <= pivotY + delta;
+        player.movingBlocked = hitBox.y1 <= y2 + delta;
       } else if (direction === DIRECTION.Down) {
-        player.movingBlocked = hitBox.y2 >= pivotY - delta;
+        player.movingBlocked = hitBox.y2 >= y1 - delta;
       }
     }
   }
