@@ -3,42 +3,45 @@ class Food extends EventEmitter {
   y;
   size;
   disassembled;
-  hitBox;
 
   /**
    *
    * @param {number} x - abscissa
    * @param {number} y - ordinate
    * @param {number} size - painted object size
+   * @param {number} cellSize - size of the cell where object is located
    * @param {CanvasRenderingContext2D} ctx - canvas's context
    */
-  constructor(x, y, size, ctx) {
+  constructor(x, y, size, cellSize, ctx) {
     super();
 
     this.x = x;
     this.y = y;
     this.size = size;
+    this.cellSize = cellSize;
     this.ctx = ctx;
     this.disassembled = false;
-    this.hitBox = getHitBox(x, y, size);
   }
 
-  paint(size = this.size, color) {
-    this.ctx.fillStyle = color;
+  paint() {
+    this.ctx.save();
+    this.ctx.fillStyle = "yellow";
     this.ctx.beginPath();
-    this.ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
+
+    const x = (this.x + 0.5) * this.cellSize;
+    const y = (this.y + 0.5) * this.cellSize;
+
+    this.ctx.arc(x, y, this.size, 0, Math.PI * 2);
     this.ctx.fill();
+    this.ctx.restore();
   }
 
-  clear(size, color) {
-    this.ctx.fillStyle = color;
-    this.ctx.fillRect(this.x - size, this.y - size, size * 2, size * 2);
-
+  clear() {
+    this.ctx.clearRect(this.x, this.y, this.cellSize, this.cellSize);
   }
 
   create() {
-    this.paint(this.size, "yellow");
-    this.disassembled = false;
+    this.paint();
   }
 
   disassemble() {
@@ -48,10 +51,10 @@ class Food extends EventEmitter {
     const step = this.size / 8;
     let currentSize = this.size;
     const id = setInterval(() => {
-      this.clear(currentSize + step, "blue");
+      this.clear("blue");
       const newSize = currentSize - step;
-      currentSize = (newSize <= 0.001 || newSize > currentSize) ? 0 : newSize;
-      this.paint(currentSize, "yellow");
+      this.size = (newSize <= 0.001 || newSize > currentSize) ? 0 : newSize;
+      this.paint("yellow");
       if (currentSize <= 0) {
         clearInterval(id);
         this.trigger('disassembled');

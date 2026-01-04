@@ -5,22 +5,29 @@ const ROTATIONS = {
   ArrowUp: DIRECTION.Up,
 };
 
+const isHorizontal = (direction) => [DIRECTION.Left, DIRECTION.Right].includes(direction);
+const isVertical = (direction) => [DIRECTION.Up, DIRECTION.Down].includes(direction);
+
 class Player {
-  x;
-  y;
+  tileX;
+  tileY;
   r;
   alive;
-  opening;
   ctx;
-  #openingDelta = 1;
   direction;
+  directionBuffer;
+  progress = 0.5;
+
   velocity;
 
   movingBlocked;
 
-  constructor(x, y, size, opening, ctx, direction = DIRECTION.Up, velocity = 1) {
-    this.x = x;
-    this.y = y;
+  opening;
+  #openingDelta = 1;
+
+  constructor(tileX, tileY, size, opening, ctx, direction = DIRECTION.Up, velocity = 1) {
+    this.tileX = tileX;
+    this.tileY = tileY;
     this.r = size / 2;
     this.ctx = ctx;
     this.opening = opening;
@@ -29,23 +36,21 @@ class Player {
     this.velocity = velocity;
   }
 
-  get hitBox() {
-    return getHitBox(this.x, this.y, this.r * 2);
-  }
-
   paint(opening) {
     const angle = Math.PI * (opening / 100);
 
-    const rotationAngle = (this.direction * Math.PI * 2) / 4;
+    const centerX = ((isHorizontal(this.direction) ? this.progress : 0.5) + this.tileX) * PACMAN_GRID_SIZE;
+    const centerY = ((isVertical(this.direction) ? this.progress : 0.5) + this.tileY) * PACMAN_GRID_SIZE;
 
+    const rotationAngle = (this.direction * Math.PI * 2) / 4;
     this.ctx.save();
 
     this.ctx.fillStyle = "yellow";
     this.ctx.beginPath();
-    this.ctx.moveTo(this.x, this.y);
+    this.ctx.moveTo(centerX, centerY);
     this.ctx.arc(
-      this.x,
-      this.y,
+      centerX,
+      centerY,
       this.r,
       angle + rotationAngle,
       2 * Math.PI - angle + rotationAngle,
@@ -58,8 +63,6 @@ class Player {
 
   create() {
     this.paint(this.opening);
-
-    this.initControls();
   }
 
   animate() {
@@ -78,23 +81,21 @@ class Player {
   }
 
   move() {
-    if (this.movingBlocked) {
-      return;
+    if (this.progress >= 100) {
+      this.direction = this.directionBuffer;
+      this.directionBuffer = null;
     }
-    const boundary = { x: this.ctx.canvas.width, y: this.ctx.canvas.height };
-    const { deltaX, deltaY } = isCollided(this.hitBox, boundary, this.direction, this.velocity);
-    this.x += deltaX;
-    this.y += deltaY;
-  }
-
-  rotate(direction) {
-    this.direction = direction;
   }
 
   keyHandler = (event) => {
     const key = event.key;
     if (Object.keys(ROTATIONS).includes(key)) {
-      this.rotate(ROTATIONS[key]);
+      const newDirection = ROTATIONS[key];
+      // if (Math.abs(this.direction - newDirection) % 2 === 0) {
+        this.direction = newDirection;
+      // } else {
+      //   this.directionBuffer = newDirection;
+      // }
     }
   };
 

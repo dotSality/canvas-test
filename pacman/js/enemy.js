@@ -26,10 +26,6 @@ class Enemy {
     });
   }
 
-  get hitBox() {
-    return getHitBox(this.x, this.y, this.size);
-  }
-
   paint() {
     this.ctx.save();
     this.ctx.beginPath();
@@ -127,10 +123,6 @@ class Enemy {
   }
 
   move() {
-    const boundary = { x: this.ctx.canvas.width, y: this.ctx.canvas.height };
-    const { deltaX, deltaY } = isCollided(this.hitBox, boundary, this.direction, this.velocity);
-    this.x += deltaX;
-    this.y += deltaY;
   }
 
   rotate(direction) {

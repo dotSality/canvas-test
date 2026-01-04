@@ -1,29 +1,9 @@
 const random = (min, max) =>
   Math.trunc((Math.random() * (max - min))) + min;
 
-const isCollided = (hitBox, boundary, direction, velocity) => {
-  const collidedBottom = hitBox.y2 >= boundary.y && direction === DIRECTION.Down;
-  const collidedTop = hitBox.y1 <= 0 && direction === DIRECTION.Up;
-  const collidedLeft = hitBox.x1 <= 0 && direction === DIRECTION.Left;
-  const collidedRight = hitBox.x2 >= boundary.x && direction === DIRECTION.Right;
-
-  const deltaUp = collidedTop ? 0 : -velocity;
-  const deltaDown = collidedBottom ? 0 : velocity;
-  const deltaRight = collidedRight ? 0 : velocity;
-  const deltaLeft = collidedLeft ? 0 : -velocity;
-
-  const isHorizontal = direction === DIRECTION.Left || direction === DIRECTION.Right;
-  const isVertical = direction === DIRECTION.Up || direction === DIRECTION.Down;
-
-  const deltaX = isHorizontal ? (direction === DIRECTION.Left ? deltaLeft : deltaRight) : 0;
-  const deltaY = isVertical ? (direction === DIRECTION.Up ? deltaUp : deltaDown) : 0;
-
-  return { deltaX, deltaY };
-};
-
 /**
  *
- * @typedef {{UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3}} Directions
+ * @typedef {{Up: 0, Right: 1, Down: 2, Left: 3}} Directions
  */
 const DIRECTION = {
   Right: 0,
@@ -69,11 +49,6 @@ class GridCell {
 
   get pivot() {
     return { x: this.size / 2 + this.x1, y: this.size / 2 + this.y1 };
-  }
-
-  get position() {
-    const { x, y } = this.pivot;
-    return { x: Math.floor(x / this.size), y: Math.floor(y / this.size) };
   }
 }
 

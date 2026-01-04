@@ -32,17 +32,24 @@ class Walls {
 
   static drawWalls(ctx, cellSize) {
     ctx.save();
-    ctx.strokeStyle = "white";
-    ctx.strokeWidth = 2;
+    ctx.fillStyle = '#ffffff60';
+    // ctx.strokeStyle = "white";
+    // ctx.strokeWidth = 2;
     Walls.template.forEach(([p1, p2]) => {
       const [x1, y1] = p1, [x2, y2] = p2;
-      const px1 = x1 * cellSize + cellSize / 2;
-      const px2 = x2 * cellSize + cellSize / 2;
-      const py1 = y1 * cellSize + cellSize / 2;
-      const py2 = y2 * cellSize + cellSize / 2;
-      ctx.beginPath();
-      ctx.roundRect(px1, py1, px2 - px1, py2 - py1, 5);
-      ctx.stroke();
+
+      for (let x = x1; x <= x2; x++) {
+        for (let y = y1; y <= y2; y++) {
+          ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
+        }
+      }
+      // const px1 = x1 * cellSize + cellSize / 2;
+      // const px2 = x2 * cellSize + cellSize / 2;
+      // const py1 = y1 * cellSize + cellSize / 2;
+      // const py2 = y2 * cellSize + cellSize / 2;
+      // ctx.beginPath();
+      // ctx.roundRect(px1, py1, px2 - px1, py2 - py1, 5);
+      // ctx.stroke();
     });
     ctx.restore();
   }
