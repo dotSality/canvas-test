@@ -72,6 +72,10 @@ class Player {
     this.paint(this.opening);
   }
 
+  get directionSign() {
+    return [DIRECTION.Right, DIRECTION.Down].includes(this.direction) ? 1 : -1;
+  }
+
   clear() {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
   }
@@ -81,9 +85,17 @@ class Player {
   }
 
   move() {
-    if (this.progress >= 100) {
-      this.direction = this.directionBuffer;
-      this.directionBuffer = null;
+    this.progress += this.velocity * 0.0005 * this.directionSign;
+    console.log(this.progress);
+    if ((this.progress >= 0.5 && this.directionSign > 0) || (this.progress <= 0.5 && this.directionSign < 0)) {
+      if (isHorizontal(this.direction)) {
+        this.tileX += 1 * this.directionSign;
+      }
+      if (isVertical(this.direction)) {
+        this.tileY += 1 * this.directionSign;
+      }
+      // this.direction = this.directionBuffer;
+      // this.directionBuffer = null;
     }
   }
 
