@@ -2,14 +2,14 @@ const random = (min, max) =>
   Math.trunc((Math.random() * (max - min))) + min;
 
 const getNeighboursCoordinates = (playerX, playerY) => [
-  [playerX, playerY - 1],
-  [playerX, playerY + 1],
   [playerX - 1, playerY],
-  [playerX + 1, playerY]
+  [playerX, playerY + 1],
+  [playerX + 1, playerY],
+  [playerX, playerY - 1],
 ];
 
 /**
- * @typedef {{Up: 0, Right: 1, Down: 2, Left: 3}} Directions
+ * @typedef {{Right: 0, Down: 1, Left: 2, Up: 3}} Directions
  */
 const DIRECTION = {
   Right: 0,

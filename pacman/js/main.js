@@ -102,6 +102,7 @@ drawWalls(fieldContext, PACMAN_GRID_SIZE);
 const { x: playerX, y: playerY } = playerStartCell;
 
 const neighbours = grid.flat().filter((cell) => {
+  // console.log(cell);
   const playerCoordinates = getNeighboursCoordinates(playerX, playerY);
   return !(cell.child instanceof Wall) && playerCoordinates.some((neighbour) => {
     const [x, y] = neighbour;
@@ -112,7 +113,7 @@ const neighbours = grid.flat().filter((cell) => {
 const directionCell = neighbours.at(random(0, neighbours.length));
 
 const initPlayerDirection = directionCell.x === playerX
-  ? (directionCell.y > playerY ? DIRECTION.Up : DIRECTION.Down)
+  ? (directionCell.y < playerY ? DIRECTION.Up : DIRECTION.Down)
   : (directionCell.x > playerX ? DIRECTION.Right : DIRECTION.Left);
 
 const player = new Player(playerX, playerY, PACMAN_GRID_SIZE, 30, modelsContext, initPlayerDirection, VELOCITY);
@@ -145,10 +146,11 @@ const render = (timestamp) => {
   if (!game.paused) {
     player.clear();
     enemy.clear();
-    const { x, y, direction } = player;
+    const { tileX, tileY, direction } = player;
+    console.log(direction);
+    const coords = getNeighboursCoordinates(tileX, tileY).at(direction);
 
-    // const column = grid.at(Math.floor(pointX / PACMAN_GRID_SIZE)) ?? grid.instance.at(-1);
-    // const cell = column.at(Math.floor(pointY / PACMAN_GRID_SIZE));
+    console.log(coords);
 
     // if (cell?.child instanceof Food && !cell.child.disassembled) {
     // if ((foodHitBox.x2 >= pointX || foodHitBox.x1 <= pointX) || (foodHitBox.y1 <= pointY || foodHitBox.y2 >= pointY)) {
@@ -156,23 +158,6 @@ const render = (timestamp) => {
     //     game.score += 1;
     //     menu.trigger("printScore", game.score);
     //   });
-    // }
-    // }
-    // const { x: posX, y: posY } = cell.position;
-
-    // if (Walls.isWalled(posX, posY)) {
-    //   const { x: pivotX, y: pivotY } = cell.pivot;
-    //   const delta = 2;
-
-    // if (direction === DIRECTION.Left) {
-    //   player.movingBlocked = hitBox.x1 <= pivotX + delta;
-    // } else if (direction === DIRECTION.Right) {
-    //   player.movingBlocked = hitBox.x2 >= pivotX - delta;
-    // } else if (direction === DIRECTION.Up) {
-    //   player.movingBlocked = hitBox.y1 <= pivotY + delta;
-    // } else if (direction === DIRECTION.Down) {
-    //   player.movingBlocked = hitBox.y2 >= pivotY - delta;
-    // }
     // }
   }
 

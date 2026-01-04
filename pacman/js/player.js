@@ -20,10 +20,10 @@ class Player {
 
   velocity;
 
-  movingBlocked;
-
   opening;
   #openingDelta = 1;
+
+  allowedRotation = false;
 
   constructor(tileX, tileY, size, opening, ctx, direction = DIRECTION.Up, velocity = 1) {
     this.tileX = tileX;
@@ -93,11 +93,16 @@ class Player {
       const newDirection = ROTATIONS[key];
       // if (Math.abs(this.direction - newDirection) % 2 === 0) {
         this.direction = newDirection;
+      console.log(newDirection);
       // } else {
       //   this.directionBuffer = newDirection;
       // }
     }
   };
+
+  checkRotation() {
+
+  }
 
   // TODO: block listener initialization until paused/not started
   initControls() {
@@ -107,6 +112,5 @@ class Player {
   render() {
     this.move();
     this.animate();
-    this.movingBlocked = false;
   }
 }
