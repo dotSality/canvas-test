@@ -1,20 +1,4 @@
-class Wall {
-  x;
-  y;
-  size;
-  ctx;
 
-  constructor(x,y, size, ctx) {
-    this.x = x;
-    this.y = y;
-    this.size = size;
-    this.ctx = ctx;
-  }
-
-  create() {
-    console.warn('Wall.create is not implemented');
-  }
-}
 
 const PACMAN_GRID_SIZE = 20;
 const VELOCITY = 0.5 * window.devicePixelRatio;
@@ -37,7 +21,7 @@ const WALLS_TEMPLATE = [
   [[17, 27], [29, 29]],
 ];
 
-const isWall = (x,y) => {
+const isWall = (x, y) => {
   const block = WALLS_TEMPLATE.find(([p1, p2]) => {
     const [x1, y1] = p1, [x2, y2] = p2;
     const isWalledX = x >= x1 && x <= x2;
@@ -46,7 +30,31 @@ const isWall = (x,y) => {
   });
 
   return Boolean(block);
-}
+};
+
+const drawWalls = (ctx, cellSize) => {
+  ctx.save();
+  ctx.fillStyle = "#ffffff60";
+  // ctx.strokeStyle = "white";
+  // ctx.strokeWidth = 2;
+  WALLS_TEMPLATE.forEach(([p1, p2]) => {
+    const [x1, y1] = p1, [x2, y2] = p2;
+
+    for (let x = x1 ; x <= x2 ; x++) {
+      for (let y = y1 ; y <= y2 ; y++) {
+        ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
+      }
+    }
+    // const px1 = x1 * cellSize + cellSize / 2;
+    // const px2 = x2 * cellSize + cellSize / 2;
+    // const py1 = y1 * cellSize + cellSize / 2;
+    // const py2 = y2 * cellSize + cellSize / 2;
+    // ctx.beginPath();
+    // ctx.roundRect(px1, py1, px2 - px1, py2 - py1, 5);
+    // ctx.stroke();
+  });
+  ctx.restore();
+};
 
 const field = document.getElementById("field");
 const fieldContext = field.getContext("2d");
@@ -67,15 +75,15 @@ const models = document.getElementById("models");
 const modelsContext = models.getContext("2d");
 
 let playerStartCell;
-grid.traverse((cell) => {
+grid.flat().forEach((cell, index, array) => {
   if (cell === playerStartCell) {
     return;
   }
 
-  const { x, y } = cell.position;
+  const { x, y } = cell;
   if (isWall(x, y)) {
 
-    cell.fill(new Wall(x,y));
+    cell.fill(new Wall(x, y));
 
     return;
   }
@@ -83,20 +91,21 @@ grid.traverse((cell) => {
   if (Math.random() > 0.95 && !playerStartCell) {
     playerStartCell = cell;
   } else {
-    const { x, y } = cell;
-
     cell.fill(new Food(x, y, 2, PACMAN_GRID_SIZE, fieldContext));
+  }
+
+  if (!playerStartCell && (index === array.length - 1)) {
+    playerStartCell = cell;
   }
 });
 
-Walls.drawWalls(fieldContext, PACMAN_GRID_SIZE);
+drawWalls(fieldContext, PACMAN_GRID_SIZE);
 
 const { x: playerX, y: playerY } = playerStartCell;
 
-const neighboursCoordinates = [[playerX, playerY - 1], [playerX, playerY + 1], [playerX - 1, playerY], [playerX + 1, playerY]];
-
 const neighbours = grid.flat().filter((cell) => {
-  return cell.child && neighboursCoordinates.some((neighbour) => {
+  const playerCoordinates = getNeighboursCoordinates(playerX, playerY);
+  return !(cell.child instanceof Wall) && playerCoordinates.some((neighbour) => {
     const [x, y] = neighbour;
     return x === cell.x && y === cell.y;
   });
