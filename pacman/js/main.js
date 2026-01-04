@@ -1,5 +1,52 @@
+class Wall {
+  x;
+  y;
+  size;
+  ctx;
+
+  constructor(x,y, size, ctx) {
+    this.x = x;
+    this.y = y;
+    this.size = size;
+    this.ctx = ctx;
+  }
+
+  create() {
+    console.warn('Wall.create is not implemented');
+  }
+}
+
 const PACMAN_GRID_SIZE = 20;
-const VELOCITY = 0.5;
+const VELOCITY = 0.5 * window.devicePixelRatio;
+
+const WALLS_TEMPLATE = [
+  [[0, 0], [4, 8]],
+  [[6, 0], [11, 3]],
+  [[13, 0], [15, 8]],
+  [[17, 0], [23, 2]],
+  [[25, 0], [29, 13]],
+  [[6, 5], [11, 13]],
+  [[17, 4], [23, 13]],
+  [[0, 10], [4, 18]],
+  [[6, 15], [11, 25]],
+  [[13, 10], [15, 25]],
+  [[17, 15], [23, 25]],
+  [[25, 15], [29, 25]],
+  [[0, 20], [4, 29]],
+  [[6, 27], [15, 29]],
+  [[17, 27], [29, 29]],
+];
+
+const isWall = (x,y) => {
+  const block = WALLS_TEMPLATE.find(([p1, p2]) => {
+    const [x1, y1] = p1, [x2, y2] = p2;
+    const isWalledX = x >= x1 && x <= x2;
+    const isWalledY = y >= y1 && y <= y2;
+    return isWalledX && isWalledY;
+  });
+
+  return Boolean(block);
+}
 
 const field = document.getElementById("field");
 const fieldContext = field.getContext("2d");
@@ -19,25 +66,27 @@ const grid = Array.from({ length: height / PACMAN_GRID_SIZE }, (_, row) => {
 const models = document.getElementById("models");
 const modelsContext = models.getContext("2d");
 
-const freeCells = [];
-
-grid.flat().forEach((cell) => {
-  const { x, y } = cell;
-  if (!Walls.isWalled(x, y)) {
-    freeCells.push(cell);
-  }
-});
-
-const playerStartCell = freeCells.at(random(0, freeCells.length));
-
-freeCells.forEach((cell) => {
+let playerStartCell;
+grid.traverse((cell) => {
   if (cell === playerStartCell) {
     return;
   }
 
-  const { x, y } = cell;
+  const { x, y } = cell.position;
+  if (isWall(x, y)) {
 
-  cell.fill(new Food(x, y, 2, PACMAN_GRID_SIZE, fieldContext));
+    cell.fill(new Wall(x,y));
+
+    return;
+  }
+
+  if (Math.random() > 0.95 && !playerStartCell) {
+    playerStartCell = cell;
+  } else {
+    const { x, y } = cell;
+
+    cell.fill(new Food(x, y, 2, PACMAN_GRID_SIZE, fieldContext));
+  }
 });
 
 Walls.drawWalls(fieldContext, PACMAN_GRID_SIZE);
