@@ -1,5 +1,3 @@
-
-
 const PACMAN_GRID_SIZE = 20;
 const VELOCITY = 0.5 * window.devicePixelRatio;
 
