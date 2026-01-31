@@ -132,22 +132,18 @@ class Player {
         return;
       }
 
-      // if (Math.abs(this.direction - newDirection) % 2 === 0) {
-      //   this.progress = 1 - this.progress;
-      //   this.direction = newDirection;
-      //   this.directionBuffer = null;
-      //   if (isDirectionNegative(this.direction)) {
-      //     if (isHorizontal(this.direction)) {
-      //       this.tileX += 1 * this.directionSign;
-      //     } else {
-      //       this.tileY += 1 * this.directionSign;
-      //     }
-      //   }
-      // } else {
-      //   this.directionBuffer = newDirection;
-      // }
-
-      this.directionBuffer = newDirection;
+      if (Math.abs(this.direction - newDirection) % 2 === 0) {
+        this.progress = 1 - this.progress;
+        this.direction = newDirection;
+        this.directionBuffer = null;
+        if (isHorizontal(this.direction)) {
+          this.tileX += -1 * this.directionSign;
+        } else {
+          this.tileY += -1 * this.directionSign;
+        }
+      } else {
+        this.directionBuffer = newDirection;
+      }
     }
   };
 
