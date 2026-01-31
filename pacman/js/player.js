@@ -7,6 +7,8 @@ const ROTATIONS = {
 
 const isHorizontal = (direction) => [DIRECTION.Left, DIRECTION.Right].includes(direction);
 const isVertical = (direction) => [DIRECTION.Up, DIRECTION.Down].includes(direction);
+const isDirectionNegative = (direction) => [DIRECTION.Up, DIRECTION.Left].includes(direction);
+const getDefaultDirection = (direction) => isDirectionNegative(direction) ? 1 : 0;
 
 class Player {
   tileX;
@@ -16,7 +18,7 @@ class Player {
   ctx;
   direction;
   directionBuffer;
-  progress = 0.5;
+  progress;
 
   velocity;
 
@@ -34,13 +36,14 @@ class Player {
     this.alive = true;
     this.direction = direction;
     this.velocity = velocity;
+    this.progress = getDefaultDirection(this.direction);
   }
 
   paint(opening) {
     const angle = Math.PI * (opening / 100);
 
-    const centerX = ((isHorizontal(this.direction) ? this.progress : 0.5) + this.tileX) * PACMAN_GRID_SIZE;
-    const centerY = ((isVertical(this.direction) ? this.progress : 0.5) + this.tileY) * PACMAN_GRID_SIZE;
+    const centerX = ((isHorizontal(this.direction) ? this.progress + 0.5 : 0.5) + this.tileX) * PACMAN_GRID_SIZE;
+    const centerY = ((isVertical(this.direction) ? this.progress + 0.5 : 0.5) + this.tileY) * PACMAN_GRID_SIZE;
 
     const rotationAngle = (this.direction * Math.PI * 2) / 4;
     this.ctx.save();
@@ -73,7 +76,7 @@ class Player {
   }
 
   get directionSign() {
-    return [DIRECTION.Right, DIRECTION.Down].includes(this.direction) ? 1 : -1;
+    return isDirectionNegative(this.direction) ? -1 : 1;
   }
 
   clear() {
@@ -85,17 +88,22 @@ class Player {
   }
 
   move() {
-    this.progress += this.velocity * 0.0005 * this.directionSign;
-    console.log(this.progress);
-    if ((this.progress >= 0.5 && this.directionSign > 0) || (this.progress <= 0.5 && this.directionSign < 0)) {
+    this.progress += /*this.velocity * 0.0005*/0.01 * this.directionSign;
+
+    if ((this.progress >= 1 && this.directionSign > 0) || (this.progress <= 0 && this.directionSign < 0)) {
+      if (this.directionBuffer !== null) {
+        this.direction = this.directionBuffer;
+        this.directionBuffer = null;
+      }
+
       if (isHorizontal(this.direction)) {
+        this.progress = isDirectionNegative(this.direction) ? 1 : 0;
         this.tileX += 1 * this.directionSign;
       }
       if (isVertical(this.direction)) {
+        this.progress = isDirectionNegative(this.direction) ? 1 : 0;
         this.tileY += 1 * this.directionSign;
       }
-      // this.direction = this.directionBuffer;
-      // this.directionBuffer = null;
     }
   }
 
@@ -103,12 +111,12 @@ class Player {
     const key = event.key;
     if (Object.keys(ROTATIONS).includes(key)) {
       const newDirection = ROTATIONS[key];
-      // if (Math.abs(this.direction - newDirection) % 2 === 0) {
+      if (Math.abs(this.direction - newDirection) % 2 === 0) {
         this.direction = newDirection;
-      console.log(newDirection);
-      // } else {
-      //   this.directionBuffer = newDirection;
-      // }
+        this.directionBuffer = null;
+      } else {
+        this.directionBuffer = newDirection;
+      }
     }
   };
 

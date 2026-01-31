@@ -147,10 +147,10 @@ const render = (timestamp) => {
     player.clear();
     enemy.clear();
     const { tileX, tileY, direction } = player;
-    console.log(direction);
+    // console.log(direction);
     const coords = getNeighboursCoordinates(tileX, tileY).at(direction);
 
-    console.log(coords);
+    // console.log(coords);
 
     // if (cell?.child instanceof Food && !cell.child.disassembled) {
     // if ((foodHitBox.x2 >= pointX || foodHitBox.x1 <= pointX) || (foodHitBox.y1 <= pointY || foodHitBox.y2 >= pointY)) {
