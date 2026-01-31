@@ -1,6 +1,8 @@
 const random = (min, max) =>
   Math.trunc((Math.random() * (max - min))) + min;
 
+const isNil = (value) => value === null || value === undefined;
+
 const getNeighboursCoordinates = (playerX, playerY) => [
   [playerX - 1, playerY],
   [playerX, playerY + 1],

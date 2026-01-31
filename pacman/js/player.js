@@ -36,18 +36,29 @@ class Player {
     this.alive = true;
     this.direction = direction;
     this.velocity = velocity;
-    this.progress = getDefaultDirection(this.direction);
+    this.progress = 0;
   }
 
   paint(opening) {
-    const angle = Math.PI * (opening / 100);
 
-    const centerX = ((isHorizontal(this.direction) ? this.progress + 0.5 : 0.5) + this.tileX) * PACMAN_GRID_SIZE;
-    const centerY = ((isVertical(this.direction) ? this.progress + 0.5 : 0.5) + this.tileY) * PACMAN_GRID_SIZE;
+    const deltaX = isHorizontal(this.direction) ? this.progress * this.directionSign : 0;
+    const deltaY = isVertical(this.direction) ? this.progress * this.directionSign : 0;
+
+    const centerX = (deltaX + 0.5 + this.tileX) * PACMAN_GRID_SIZE;
+    const centerY = (deltaY + 0.5 + this.tileY) * PACMAN_GRID_SIZE;
+    // console.log(this.tileX, this.tileY);
+    // console.log(centerX, centerY);
 
     const rotationAngle = (this.direction * Math.PI * 2) / 4;
     this.ctx.save();
 
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText(JSON.stringify({ tileX: this.tileX, tileY: this.tileY }), 50, 100);
+    this.ctx.fillText(JSON.stringify({ centerX, centerY }), 50, 120);
+    this.ctx.fillText(JSON.stringify({ progress: this.progress }), 50, 140);
+    this.ctx.fillText(JSON.stringify({ deltaX, deltaY }), 50, 160);
+
+    const angle = Math.PI * (opening / 100);
     this.ctx.fillStyle = "yellow";
     this.ctx.beginPath();
     this.ctx.moveTo(centerX, centerY);
@@ -87,22 +98,28 @@ class Player {
     window.removeEventListener("keydown", this.keyHandler);
   }
 
+  makeStepTile() {
+
+  }
+
+  // TODO: make move checking to prevent painting `progress` values like 1.04 or -0.04
   move() {
-    this.progress += /*this.velocity * 0.0005*/0.01 * this.directionSign;
-
-    if ((this.progress >= 1 && this.directionSign > 0) || (this.progress <= 0 && this.directionSign < 0)) {
-      if (this.directionBuffer !== null) {
-        this.direction = this.directionBuffer;
-        this.directionBuffer = null;
-      }
-
+    this.progress += /*this.velocity * 0.0005*/0.02;
+    // console.log(this.progress);
+    if (this.progress >= 1) {
       if (isHorizontal(this.direction)) {
-        this.progress = isDirectionNegative(this.direction) ? 1 : 0;
+        this.progress = 0;
         this.tileX += 1 * this.directionSign;
       }
+
       if (isVertical(this.direction)) {
-        this.progress = isDirectionNegative(this.direction) ? 1 : 0;
+        this.progress = 0;
         this.tileY += 1 * this.directionSign;
+      }
+
+      if (!isNil(this.directionBuffer)) {
+        this.direction = this.directionBuffer;
+        this.directionBuffer = null;
       }
     }
   }
@@ -111,12 +128,26 @@ class Player {
     const key = event.key;
     if (Object.keys(ROTATIONS).includes(key)) {
       const newDirection = ROTATIONS[key];
-      if (Math.abs(this.direction - newDirection) % 2 === 0) {
-        this.direction = newDirection;
-        this.directionBuffer = null;
-      } else {
-        this.directionBuffer = newDirection;
+      if (this.direction === newDirection) {
+        return;
       }
+
+      // if (Math.abs(this.direction - newDirection) % 2 === 0) {
+      //   this.progress = 1 - this.progress;
+      //   this.direction = newDirection;
+      //   this.directionBuffer = null;
+      //   if (isDirectionNegative(this.direction)) {
+      //     if (isHorizontal(this.direction)) {
+      //       this.tileX += 1 * this.directionSign;
+      //     } else {
+      //       this.tileY += 1 * this.directionSign;
+      //     }
+      //   }
+      // } else {
+      //   this.directionBuffer = newDirection;
+      // }
+
+      this.directionBuffer = newDirection;
     }
   };
 

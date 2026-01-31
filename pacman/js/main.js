@@ -102,7 +102,6 @@ drawWalls(fieldContext, PACMAN_GRID_SIZE);
 const { x: playerX, y: playerY } = playerStartCell;
 
 const neighbours = grid.flat().filter((cell) => {
-  // console.log(cell);
   const playerCoordinates = getNeighboursCoordinates(playerX, playerY);
   return !(cell.child instanceof Wall) && playerCoordinates.some((neighbour) => {
     const [x, y] = neighbour;
