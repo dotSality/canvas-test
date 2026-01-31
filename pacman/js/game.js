@@ -11,7 +11,7 @@ class Game extends EventEmitter {
 
   initListeners() {
     window.addEventListener('keydown', (event) => {
-      if (['Escape', 'p'].includes(event.key)) {
+      if (['Escape', 'p', 'з'].includes(event.key)) {
         this.trigger('pause');
       }
     })

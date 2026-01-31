@@ -1,5 +1,5 @@
 const PACMAN_GRID_SIZE = 20;
-const VELOCITY = 0.5 * window.devicePixelRatio;
+const VELOCITY = 0.02 * window.devicePixelRatio;
 
 const WALLS_TEMPLATE = [
   [[0, 0], [4, 8]],
@@ -146,8 +146,19 @@ const render = (timestamp) => {
     player.clear();
     enemy.clear();
     const { tileX, tileY, direction } = player;
-    // console.log(direction);
     const coords = getNeighboursCoordinates(tileX, tileY).at(direction);
+
+    if (coords) {
+      const [nextCellTileX, nextCellTileY] = coords;
+
+      if ([nextCellTileX < 0, nextCellTileY < 0, nextCellTileX >= width / PACMAN_GRID_SIZE, nextCellTileY >= height / PACMAN_GRID_SIZE].some(Boolean)) {
+        player.isMoveBlocked = true;
+      } else {
+        // const nextNeighbours = getPathNeighbours(grid, nextCellTileX, nextCellTileY);
+
+        // const nextNeighboursCoords = nextNeighbours.map((neighbour) => [neighbour.x, neighbour.y]);
+      }
+    }
 
     // console.log(coords);
 
