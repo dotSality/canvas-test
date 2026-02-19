@@ -1,3 +1,6 @@
+/*
+ * @deprecated refactor this
+ */
 const WALLS_TEMPLATE = [
     [[0, 0], [4, 8]],
     [[6, 0], [11, 3]],
@@ -16,29 +19,42 @@ const WALLS_TEMPLATE = [
     [[17, 27], [29, 29]],
 ];
 
-const baseArray = Array.from({length: 30}, (_) => []).map((arr) => ' '.repeat(30).split(''));
-
-const MAZE_WALLS = baseArray.map((row, y) => {
-    return row.map((_, x) => {
-        const isWall = this.WALLS_TEMPLATE.find((block) => {
-            const [start, end] = block;
-            const [sx, sy] = start;
-            const [ex, ey] = end;
-            return (y <= ey && y >= sy) && (x <= ex && x >= sx);
-        })
-        return isWall ? '#' : ' ';
-    })
-})
-
 class Maze {
     constructor(ctx) {
         this.ctx = ctx;
-        this.grid = MAZE_WALLS;
+        this.objects = new Map();
+        this.grid = this.generateGrid();
     }
 
     isWall (x, y) {
         return this.grid[y][x] === GridLegend.WALL;
     };
+
+    generateGrid() {
+        const baseArray = Array.from({length: 30}, (_) => [])
+            .map((_) => ' '.repeat(30).split(''));
+
+        return baseArray.map((row, y) => {
+            return row.map((_, x) => {
+                const isWall = WALLS_TEMPLATE.find((block) => {
+                    const [start, end] = block;
+                    const [sx, sy] = start;
+                    const [ex, ey] = end;
+                    return (y <= ey && y >= sy) && (x <= ex && x >= sx);
+                })
+
+                if (isWall) {
+                    return GridLegend.WALL;
+                }
+
+                if (!this.objects.has(`${x}-${y}`)) {
+                    this.objects.set(`${x}-${y}`, new Food(x, y, this, {}));
+                }
+
+                return GridLegend.EMPTY;
+            })
+        })
+    }
 
     drawWalls () {
         this.ctx.save();

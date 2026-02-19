@@ -16,6 +16,8 @@ const Direction = {
 };
 
 const random = (min, max) => Math.trunc((Math.random() * (max - min))) + min;
+const isNil = (value) => value === null || value === undefined;
+const VELOCITY = 0.02 * window.devicePixelRatio;
 
 const getNeighboursCoordinates = (playerX, playerY) => [
     [playerX + 1, playerY],
