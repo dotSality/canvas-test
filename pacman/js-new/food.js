@@ -2,14 +2,16 @@ class Food {
   size;
   disassembled;
 
-  constructor(tileX, tileY, maze, ctx) {
+  constructor(tileX, tileY, objects, ctx) {
     this.tileX = tileX;
     this.tileY = tileY;
     this.size = 2;
     this.cellSize = GRID_CELL_SIZE;
     this.ctx = ctx;
-    this.maze = maze;
+    this.objects = objects;
     this.disassembled = false;
+
+    this.create();
   }
 
   paint() {
@@ -46,7 +48,7 @@ class Food {
       this.paint();
       if (currentSize <= 0) {
         clearInterval(id);
-        this.maze.objects.delete(`${this.tileX}-${this.tileY}`);
+        this.objects.delete(`${this.tileX}-${this.tileY}`);
       }
     }, 20);
   }

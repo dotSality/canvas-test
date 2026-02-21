@@ -1,15 +1,11 @@
-const isHorizontal = (direction) => [DIRECTION.Left, DIRECTION.Right].includes(direction);
-const isVertical = (direction) => [DIRECTION.Up, DIRECTION.Down].includes(direction);
-const isDirectionNegative = (direction) => [DIRECTION.Up, DIRECTION.Left].includes(direction);
-
 class Player extends Entity {
     #opening;
     #openingDelta;
 
-    constructor(tileX, tileY, speed, maze) {
+    constructor(tileX, tileY, speed, maze, ctx) {
         super(tileX, tileY, speed, maze);
 
-        const emptyNeighbours = getNeighboursCoordinates(playerX, playerY)
+        const emptyNeighbours = getNeighboursCoordinates(tileX, tileY)
             .filter(([x,y]) => {
                 const cell = this.maze.grid[y][x];
                 return cell !== GridLegend.WALL;
@@ -23,6 +19,8 @@ class Player extends Entity {
         }
         this.maze.objects.set(`${this.tileX}-${this.tileY}`, this);
 
+        this.r = 10;
+        this.ctx = ctx;
         this.#opening = 30;
         this.#openingDelta = 1;
     }
@@ -31,8 +29,8 @@ class Player extends Entity {
         const deltaX = isHorizontal(this.direction) ? this.progress * this.directionSign : 0;
         const deltaY = isVertical(this.direction) ? this.progress * this.directionSign : 0;
 
-        const centerX = (deltaX + 0.5 + this.tileX) * PACMAN_GRID_SIZE;
-        const centerY = (deltaY + 0.5 + this.tileY) * PACMAN_GRID_SIZE;
+        const centerX = (deltaX + 0.5 + this.tileX) * GRID_CELL_SIZE;
+        const centerY = (deltaY + 0.5 + this.tileY) * GRID_CELL_SIZE;
 
         const rotationAngle = (this.direction * Math.PI * 2) / 4;
         this.ctx.save();

@@ -15,5 +15,8 @@ const gui = document.getElementById("gui");
 const guiContext = gui.getContext("2d");
 
 const maze = new Maze(fieldContext);
+maze.drawMaze();
+console.log(maze.playerCell)
+const player = new Player(maze.playerCell.x, maze.playerCell.y, VELOCITY, maze, modelsContext);
 
-const player = new Player()
+player.draw();

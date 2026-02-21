@@ -3,6 +3,7 @@ const GRID_CELL_SIZE = 20;
 const GridLegend = {
     WALL: '#',
     EMPTY: ' ',
+    PLAYER: 'P',
 }
 
 /**
@@ -25,3 +26,7 @@ const getNeighboursCoordinates = (playerX, playerY) => [
     [playerX - 1, playerY],
     [playerX, playerY - 1],
 ].filter(([x,y]) => x >= 0 && y >= 0);
+
+const isHorizontal = (direction) => [Direction.LEFT, Direction.RIGHT].includes(direction);
+const isVertical = (direction) => [Direction.UP, Direction.DOWN].includes(direction);
+const isDirectionNegative = (direction) => [Direction.UP, Direction.LEFT].includes(direction);

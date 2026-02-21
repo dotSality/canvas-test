@@ -1,6 +1,3 @@
-const isHorizontal = (direction) => [DIRECTION.Left, DIRECTION.Right].includes(direction);
-const isVertical = (direction) => [DIRECTION.Up, DIRECTION.Down].includes(direction);
-
 /*
  * Base class for every moving object
  */
