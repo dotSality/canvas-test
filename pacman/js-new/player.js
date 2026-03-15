@@ -1,3 +1,10 @@
+const Rotations = {
+    ArrowRight: Direction.RIGHT,
+    ArrowDown: Direction.DOWN,
+    ArrowLeft: Direction.LEFT,
+    ArrowUp: Direction.UP,
+};
+
 class Player extends Entity {
     #opening;
     #openingDelta;
@@ -19,6 +26,7 @@ class Player extends Entity {
         }
         this.maze.objects.set(`${this.tileX}-${this.tileY}`, this);
 
+        this.progress = 0;
         this.r = 10;
         this.ctx = ctx;
         this.#opening = 30;
@@ -57,6 +65,7 @@ class Player extends Entity {
     }
 
     animate() {
+        this.clear();
         if (this.#opening <= 0 || this.#opening >= 30) {
             this.#openingDelta *= -1;
         }
@@ -74,8 +83,8 @@ class Player extends Entity {
     }
 
     move() {
-        const nextProgress = this.progress + this.velocity * 0.1;
-
+        const nextProgress = this.progress + this.speed * 0.1;
+        // TODO: add next cell check for wall or food or etc.
         if (nextProgress < 1) {
             this.progress = nextProgress;
 
@@ -101,8 +110,8 @@ class Player extends Entity {
 
     keyHandler = (event) => {
         const key = event.key;
-        if (Object.keys(ROTATIONS).includes(key)) {
-            const newDirection = ROTATIONS[key];
+        if (Object.keys(Rotations).includes(key)) {
+            const newDirection = Rotations[key];
             if (this.direction === newDirection) {
                 return;
             }

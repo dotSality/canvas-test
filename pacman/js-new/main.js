@@ -18,5 +18,13 @@ const maze = new Maze(fieldContext);
 maze.drawMaze();
 console.log(maze.playerCell)
 const player = new Player(maze.playerCell.x, maze.playerCell.y, VELOCITY, maze, modelsContext);
-
+player.initControls();
 player.draw();
+
+
+    const render = () => {
+        player.render();
+
+        requestAnimationFrame(render);
+    }
+    render();
