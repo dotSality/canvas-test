@@ -28,8 +28,6 @@ class Player extends EventEmitter {
   constructor(tileX, tileY, size, opening, ctx, direction = DIRECTION.Up, velocity = 1, map) {
     super();
 
-    console.log(tileX, tileY);
-
     this.tileX = tileX;
     this.tileY = tileY;
     this.r = size / 2;
