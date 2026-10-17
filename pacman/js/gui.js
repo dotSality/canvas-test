@@ -279,11 +279,6 @@ class Gui extends EventEmitter {
     });
     this.ctx.canvas.addEventListener("mousemove", this.handleHover);
     this.ctx.canvas.addEventListener("click", this.handleClick);
-
-    this.on("start", () => {
-      this.clearDefaultPage();
-      this.drawGamePage();
-    });
   }
 
   unregisterEvents() {

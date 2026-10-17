@@ -102,8 +102,12 @@ game.init();
 menu.init();
 
 menu.on("start", () => {
+  game.started = true;
   game.paused = false;
   player.initControls();
+
+  menu.clearDefaultPage();
+  menu.drawGamePage();
 });
 
 let prevTimestamp = 0;
