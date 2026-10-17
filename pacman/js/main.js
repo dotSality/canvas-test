@@ -1,56 +1,43 @@
 const PACMAN_GRID_SIZE = 20;
-const VELOCITY = 0.02 * window.devicePixelRatio;
+const VELOCITY = 0.12 * window.devicePixelRatio;
 
-const WALLS_TEMPLATE = [
-  [[0, 0], [4, 8]],
-  [[6, 0], [11, 3]],
-  [[13, 0], [15, 8]],
-  [[17, 0], [23, 2]],
-  [[25, 0], [29, 13]],
-  [[6, 5], [11, 13]],
-  [[17, 4], [23, 13]],
-  [[0, 10], [4, 18]],
-  [[6, 15], [11, 25]],
-  [[13, 10], [15, 25]],
-  [[17, 15], [23, 25]],
-  [[25, 15], [29, 25]],
-  [[0, 20], [4, 29]],
-  [[6, 27], [15, 29]],
-  [[17, 27], [29, 29]],
+const MAP = [
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "F", "F", "F", "F", "F", "F", "F", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "F", "F", "F", "F", "F", "F", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "P", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["F", "F", "F", "F", "F", "F", "W", "W", "W", "W", "W", "W", "F", "F", "F", "F", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "F", "F", "F", "F", "F", "F", "F", "W", "W", "W", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["F", "F", "F", "F", "F", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "F"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"],
+  ["W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "F", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"]
 ];
 
-const isWall = (x, y) => {
-  const block = WALLS_TEMPLATE.find(([p1, p2]) => {
-    const [x1, y1] = p1, [x2, y2] = p2;
-    const isWalledX = x >= x1 && x <= x2;
-    const isWalledY = y >= y1 && y <= y2;
-    return isWalledX && isWalledY;
-  });
-
-  return Boolean(block);
-};
-
-const drawWalls = (ctx, cellSize) => {
+const drawWall = (ctx, coordinates) => {
   ctx.save();
   ctx.fillStyle = "#ffffff60";
-  // ctx.strokeStyle = "white";
-  // ctx.strokeWidth = 2;
-  WALLS_TEMPLATE.forEach(([p1, p2]) => {
-    const [x1, y1] = p1, [x2, y2] = p2;
-
-    for (let x = x1 ; x <= x2 ; x++) {
-      for (let y = y1 ; y <= y2 ; y++) {
-        ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
-      }
-    }
-    // const px1 = x1 * cellSize + cellSize / 2;
-    // const px2 = x2 * cellSize + cellSize / 2;
-    // const py1 = y1 * cellSize + cellSize / 2;
-    // const py2 = y2 * cellSize + cellSize / 2;
-    // ctx.beginPath();
-    // ctx.roundRect(px1, py1, px2 - px1, py2 - py1, 5);
-    // ctx.stroke();
-  });
+  ctx.fillRect(coordinates.x * PACMAN_GRID_SIZE + 1, coordinates.y * PACMAN_GRID_SIZE + 1, PACMAN_GRID_SIZE - 2, PACMAN_GRID_SIZE - 2);
   ctx.restore();
 };
 
@@ -63,60 +50,43 @@ fieldContext.fillStyle = null;
 
 const { width, height } = fieldContext.canvas;
 
-const grid = Array.from({ length: height / PACMAN_GRID_SIZE }, (_, row) => {
-  return Array.from({ length: width / PACMAN_GRID_SIZE }, (_, column) => {
-    return new GameGridCell(column, row, PACMAN_GRID_SIZE);
-  });
-});
-
 const models = document.getElementById("models");
 const modelsContext = models.getContext("2d");
 
 let playerStartCell;
-grid.flat().forEach((cell, index, array) => {
-  if (cell === playerStartCell) {
-    return;
-  }
+MAP.forEach((column, x) => {
+  column.forEach((cell, y) => {
+    if (cell === "P") {
+      playerStartCell = [x, y];
 
-  const { x, y } = cell;
-  if (isWall(x, y)) {
+      return;
+    }
 
-    cell.fill(new Wall(x, y));
+    if (cell === "W") {
 
-    return;
-  }
+      drawWall(fieldContext, { x, y });
 
-  if (Math.random() > 0.95 && !playerStartCell) {
-    playerStartCell = cell;
-  } else {
-    cell.fill(new Food(x, y, 2, PACMAN_GRID_SIZE, fieldContext));
-  }
+      return;
+    }
 
-  if (!playerStartCell && (index === array.length - 1)) {
-    playerStartCell = cell;
-  }
-});
-
-drawWalls(fieldContext, PACMAN_GRID_SIZE);
-
-const { x: playerX, y: playerY } = playerStartCell;
-
-const neighbours = grid.flat().filter((cell) => {
-  const playerCoordinates = getNeighboursCoordinates(playerX, playerY);
-  return !(cell.child instanceof Wall) && playerCoordinates.some((neighbour) => {
-    const [x, y] = neighbour;
-    return x === cell.x && y === cell.y;
+    Food.paint({ x, y, size: Food.size, cellSize: PACMAN_GRID_SIZE, ctx: fieldContext });
   });
 });
 
-const directionCell = neighbours.at(random(0, neighbours.length));
+const [playerX, playerY] = playerStartCell;
 
-const initPlayerDirection = directionCell.x === playerX
-  ? (directionCell.y < playerY ? DIRECTION.Up : DIRECTION.Down)
-  : (directionCell.x > playerX ? DIRECTION.Right : DIRECTION.Left);
+const startPlayerNeighbours = getNeighboursCoordinates(playerX, playerY, MAP.length)
+  .filter(([x, y]) => MAP[x][y] !== "W");
 
-const player = new Player(playerX, playerY, PACMAN_GRID_SIZE, 30, modelsContext, initPlayerDirection, VELOCITY);
+const [directionCellX, directionCellY] = startPlayerNeighbours.at(random(0, startPlayerNeighbours.length));
+
+const initPlayerDirection = directionCellX === playerX
+  ? (directionCellY < playerY ? DIRECTION.Up : DIRECTION.Down)
+  : (directionCellX > playerX ? DIRECTION.Right : DIRECTION.Left);
+
+const player = new Player(playerX, playerY, PACMAN_GRID_SIZE, 30, modelsContext, initPlayerDirection, VELOCITY, MAP);
 player.create();
+player.allowedCells = startPlayerNeighbours;
 
 const enemy = new Enemy(50, 100, PACMAN_GRID_SIZE, modelsContext, random(0, 3), VELOCITY);
 enemy.create();
@@ -137,7 +107,12 @@ menu.on("start", () => {
 });
 
 let prevTimestamp = 0;
-// TODO: consider using devicePixelRatio for canvas sizes | moving | etc.
+
+player.on('player:eat', () => {
+  game.score += 1;
+  menu.trigger("menu:score", game.score);
+})
+
 const render = (timestamp) => {
   const delta = ((timestamp ?? 0) - prevTimestamp) / 1000;
   prevTimestamp = timestamp ?? 0;
@@ -145,30 +120,6 @@ const render = (timestamp) => {
   if (!game.paused) {
     player.clear();
     enemy.clear();
-    const { tileX, tileY, direction } = player;
-    const coords = getNeighboursCoordinates(tileX, tileY).at(direction);
-
-    if (coords) {
-      const [nextCellTileX, nextCellTileY] = coords;
-
-      if ([nextCellTileX < 0, nextCellTileY < 0, nextCellTileX >= width / PACMAN_GRID_SIZE, nextCellTileY >= height / PACMAN_GRID_SIZE].some(Boolean)) {
-        player.isMoveBlocked = true;
-      } else {
-        // const nextNeighbours = getPathNeighbours(grid, nextCellTileX, nextCellTileY);
-
-        // const nextNeighboursCoords = nextNeighbours.map((neighbour) => [neighbour.x, neighbour.y]);
-      }
-    }
-
-    // console.log(coords);
-
-    // if (cell?.child instanceof Food && !cell.child.disassembled) {
-    // if ((foodHitBox.x2 >= pointX || foodHitBox.x1 <= pointX) || (foodHitBox.y1 <= pointY || foodHitBox.y2 >= pointY)) {
-    //   cell.empty(() => {
-    //     game.score += 1;
-    //     menu.trigger("printScore", game.score);
-    //   });
-    // }
   }
 
   game.render(delta, player, enemy);

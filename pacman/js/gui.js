@@ -174,7 +174,7 @@ class Gui extends EventEmitter {
 
     this.drawSettings();
 
-    this.on("printScore", (value) => {
+    this.on("menu:score", (value) => {
       this.drawGameScoreValue(value);
     });
   }

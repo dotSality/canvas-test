@@ -1,64 +1,55 @@
+/**
+ * @typedef {Object} FoodOptions
+ * @property {number} x - abscissa
+ * @property {number} y - ordinate
+ * @property {number} size - painted object size
+ * @property {number} cellSize - size of the cell where object is located
+ * @property {CanvasRenderingContext2D} ctx - canvas's context
+ */
+
 class Food extends EventEmitter {
-  x;
-  y;
-  size;
-  disassembled;
+  static size = 2;
+  /**
+   * @param {FoodOptions} options
+   */
+  static paint(options) {
+    options.ctx.save();
+    options.ctx.fillStyle = "yellow";
+    options.ctx.beginPath();
+
+    const canvasX = (options.x + 0.5) * options.cellSize;
+    const canvasY = (options.y + 0.5) * options.cellSize;
+
+    options.ctx.arc(canvasX, canvasY, options.size, 0, Math.PI * 2);
+    options.ctx.fill();
+    options.ctx.restore();
+  }
 
   /**
-   *
-   * @param {number} x - abscissa
-   * @param {number} y - ordinate
-   * @param {number} size - painted object size
-   * @param {number} cellSize - size of the cell where object is located
-   * @param {CanvasRenderingContext2D} ctx - canvas's context
+   * @param {FoodOptions} options
    */
-  constructor(x, y, size, cellSize, ctx) {
-    super();
-
-    this.x = x;
-    this.y = y;
-    this.size = size;
-    this.cellSize = cellSize;
-    this.ctx = ctx;
-    this.disassembled = false;
+  static clear(options) {
+    options.ctx.save();
+    options.ctx.fillStyle = "blue";
+    options.ctx.fillRect(options.x * options.cellSize, options.y * options.cellSize, options.cellSize, options.cellSize);
+    options.ctx.restore();
   }
 
-  paint() {
-    this.ctx.save();
-    this.ctx.fillStyle = "yellow";
-    this.ctx.beginPath();
-
-    const x = (this.x + 0.5) * this.cellSize;
-    const y = (this.y + 0.5) * this.cellSize;
-
-    this.ctx.arc(x, y, this.size, 0, Math.PI * 2);
-    this.ctx.fill();
-    this.ctx.restore();
-  }
-
-  clear() {
-    this.ctx.clearRect(this.x, this.y, this.cellSize, this.cellSize);
-  }
-
-  create() {
-    this.paint();
-  }
-
-  disassemble() {
-    if (this.disassembled) return;
-
-    this.disassembled = true;
-    const step = this.size / 8;
-    let currentSize = this.size;
+  /**
+   * @param {FoodOptions} options
+   */
+  static disassemble(options) {
+    const step = options.size / 8;
+    let currentSize = options.size;
     const id = setInterval(() => {
-      this.clear("blue");
+      Food.clear(options);
       const newSize = currentSize - step;
-      this.size = (newSize <= 0.001 || newSize > currentSize) ? 0 : newSize;
-      this.paint("yellow");
+      currentSize = (newSize <= 0.001 || newSize > currentSize) ? 0 : newSize;
       if (currentSize <= 0) {
         clearInterval(id);
-        this.trigger('disassembled');
+        return;
       }
+      Food.paint({ ...options, size: newSize });
     }, 20);
   }
 }
